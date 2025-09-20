@@ -8,6 +8,10 @@ export default function Header() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+  console.log("user ", user);
+  console.log("user image ", user ? user.image_profile_url :"fff" );
+
     const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -32,8 +36,8 @@ export default function Header() {
 
                       <div className="dropdown">
                         <NavLink className="nav-link dropdown-toggle" to="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://placehold.co/40x40/png" alt="User Avatar" className="rounded-circle me-1"/>
-                            Utilisateur
+                            <img src={user.image_profile_url ? user.image_profile_url :`https://placehold.co/45x45/png`} alt="User Avatar" className="rounded-circle me-1" style={{ width: '30px', height: '30px' }}/>
+                           { user ? user.noms +' '+user.prenoms : 'Utilisateur'}
                         </NavLink>
                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><NavLink className="dropdown-item" to="#">Profil</NavLink></li>

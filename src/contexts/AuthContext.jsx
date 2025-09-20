@@ -1,8 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authAPI } from '../api/index.js';
-import { registerCourrier, miseAJourCourrier, suppressionCourrier, telechargementPieceJointe, listeStatistiques ,
-  listeCourrier, detailCourrier, rechercheCourrier
-} from '../actions/Courrier.js';
+import { registerCourrier, listeCourrier, transfertCourier, listeArchive} from '../actions/Courrier.js';
 
 const AuthContext = createContext();
 //export default AuthContext;
@@ -58,9 +56,6 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.data) {
         const user = response.data;
         const token = response.token;
-
-        console.log('Token reçu:', token);
-        console.log('Données utilisateur reçues:', user);
         
         localStorage.setItem('token', token); 
         localStorage.setItem('user', JSON.stringify(user));
@@ -94,20 +89,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = {
-    user,
-    isAuthenticated,
-    loading,
-    login,
-    logout,
-    checkAuth,
-    registerCourrier,
-    miseAJourCourrier,
-    suppressionCourrier,
-    telechargementPieceJointe,
-    listeStatistiques,
-    listeCourrier,    
-    detailCourrier,
-    rechercheCourrier
+    user,isAuthenticated,loading,
+    login,logout,checkAuth,
+    registerCourrier,listeCourrier,transfertCourier,listeArchive
+
   };
 
   return (

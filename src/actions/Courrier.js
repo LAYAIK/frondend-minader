@@ -1,15 +1,22 @@
 import React from 'react';
 import { authAPI } from '../api/index.js';
+import { useState, useEffect } from 'react'
 
-export const registerCourrier = async (credentials, selectedFiles) => {
+export const registerCourrier = async (formData) => {
+
       const token = localStorage.getItem('token');
-      const response = await authAPI.registerCourrier(token, credentials, selectedFiles);
+      const response = await authAPI.registerCourrier(formData, token);
       return response;
   };
 
 export const listeCourrier = async () => {
       const token = localStorage.getItem('token');
       const response = await authAPI.listeCourrier(token);
+      return response;
+  };
+export const listeArchive = async () => {
+      const token = localStorage.getItem('token');
+      const response = await authAPI.listeArchive(token);
       return response;
   };
 
@@ -21,13 +28,13 @@ export const detailCourrier = async (id) => {
   
 export const miseAJourCourrier = async (id, updatedData) => {
       const token = localStorage.getItem('token');
-      const response = await authAPI.miseAJourCourrier(token, id, updatedData);
+      const response = await authAPI.miseAJourCourrier(id, updatedData, token);
       return response;
   };
 
-export const suppressionCourrier = async (id) => {
+export const suppressionCourrier = async (id, payload) => {
       const token = localStorage.getItem('token');
-      const response = await authAPI.suppressionCourrier(token, id);
+      const response = await authAPI.suppressionCourrier(id,payload, token);
       return response;
   };
 
@@ -36,16 +43,27 @@ export const rechercheCourrier = async (query) => {
       const response = await authAPI.rechercheCourrier(token, query);
       return response;
   };
-
-export const telechargementPieceJointe = async (fileId) => {
-      const token = localStorage.getItem('token');
-      const response = await authAPI.telechargementPieceJointe(token, fileId);
-      return response;
+export const transfertCourier = async (id, formData) => {
+    const response = await authAPI.transfertCourier(id, formData)
+    return response;
   };
 
-export const listeStatistiques = async () => {
-      const token = localStorage.getItem('token');
-      const response = await authAPI.listeStatistiques(token);
-      return response;
+export const getByIdCourrier = async (id) => {
+    const token = localStorage.getItem('token');
+    const response = await authAPI.getByIdCourrier(id, token)
+    return response;
   };
 
+export const useCourrierEntrant = (data) => {
+  const id_courrier_entrant = '4cd78808-7d9b-4853-ac54-caefbf8da671';
+  const [dataEntrant, setDataEntrant] = useState([]);
+
+  useEffect(() => {
+    const filtered = data
+      .filter(dat => dat.id_type_courrier === id_courrier_entrant)
+      .map(dat => dat.id_courrier);
+    setDataEntrant(filtered);
+  }, [data]);
+
+  return dataEntrant;
+};

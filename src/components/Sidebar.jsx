@@ -34,14 +34,12 @@ export default function Sidebar() {
                 <div className="collapse" id="home-collapse">
                   <ul className="btn-toggle-nav list-unstyled fw-normal">
                    <li><NavLink to="/register-courrier" className="nav-link p-0" style={{ marginLeft: '50px',color:'white' }}>Enregistrer</NavLink></li>
-                   <li><NavLink to="/liste-courrier" className="nav-link p-0" style={{ marginLeft: '50px',color:'white' }}>Consulter</NavLink></li>
-                   <li><NavLink to="#" className="nav-link p-0" style={{ marginLeft: '50px',color:'white' }}>Modifier</NavLink></li>
-                   <li><NavLink to="#" className="nav-link p-0" style={{ marginLeft: '50px',color:'white' }}>Supprimer</NavLink></li>
+                   <li><NavLink to="/liste-courrier" className="nav-link p-0" style={{ marginLeft: '50px',color:'white' }}>Consulter</NavLink></li> 
                    <li><NavLink to="#" className="nav-link p-0" style={{ marginLeft: '50px',color:'white' }}>Rechercher</NavLink></li>
                   </ul>
                 </div>
               
-                 <NavLink to="/archives" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>
+                 <NavLink to="/liste-archive" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>
                     <ArchiveIcon size={24} /> Archives
                 </NavLink>
                 <NavLink to="/rechercher" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>
@@ -50,7 +48,7 @@ export default function Sidebar() {
                 <NavLink to="/utilisateurs" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>
                     <PeopleIcon size={24} /> Utilisateurs
                 </NavLink>
-                <NavLink to="/workflows" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>
+                <NavLink to="/workflow" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>
                     <WorkflowIcon size={24} /> Workflows
                 </NavLink>
                 <NavLink to="/structures" className="nav-link" style={{ fontSize: '18px' ,color:'white'}}>

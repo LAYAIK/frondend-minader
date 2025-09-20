@@ -17,6 +17,14 @@ const api1 = axios.create({
   },  
 });
 
+// Api pour le service des autres
+// const api2 = axios.create({
+//   baseURL: 'http://localhost:3005/api',
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// });
+
 // Intercepteur pour ajouter le token aux requêtes
 api.interceptors.request.use(
   (config) => {
@@ -43,7 +51,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 // Services d'authentification
 export const authAPI = {
   // Connexion
@@ -59,11 +66,36 @@ export const authAPI = {
   },
 
   // Enregistrement du courrier
-  registerCourrier: async (token, credentials, selectedFiles) => {
+  registerCourrier: async (formData) => {
     try {
-      console.log("registerCourrier credentials:",credentials);
-      console.log("registerCourrier selectedFiles:",selectedFiles);
-      const response = await api1.post('/couriers', credentials);
+
+    //  const formData = new FormData();
+    // for (const key in credentials) {
+    //   formData.append(key, credentials[key]);
+    // }
+    // for (const file of selectedFiles) {
+    //   formData.append('fichiers', file);
+    // }
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
+    const response = await api1.post('/couriers', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },  
+  transfertCourier: async (id, formData) => {
+    try {
+      const response = await api1.put(`/couriers/${id}/transfert`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -73,6 +105,43 @@ export const authAPI = {
   listeCourrier: async () => {
     try {
       const response = await api1.get('/couriers');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }, 
+  listeArchive: async () => {
+    try {
+      const response = await api1.get('/archives');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },  
+  suppressionCourrier: async (id_courrier, payload) => {
+    try {
+      console.log('id :', id_courrier)
+      const response = await api1.delete(`/couriers/${id_courrier}`, {data: payload });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  getByIdCourrier: async (id) => {
+    try {
+      const response = await api1.get(`/couriers/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  miseAJourCourrier: async (id, formData) => {
+    try {
+      const response = await api1.put(`/couriers/${id}`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -101,17 +170,7 @@ export const authAPI = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  }
-
-  // Récupération des données utilisateur
-//   getUserProfile: async () => {
-//     try {
-//       const response = await api.get('/utilisateurs/:id');
-//       return response.data;
-//     } catch (error) {
-//       throw error.response?.data || error.message;
-//     }
-//   }
- };
+  },
+}
 
 export default api;
