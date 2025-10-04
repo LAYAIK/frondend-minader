@@ -1,54 +1,112 @@
-import React from 'react'
-import { Container,Navbar,Button,Badge } from 'react-bootstrap'
-import { BellIcon, UnreadIcon } from '@primer/octicons-react'
-import { NavLink } from 'react-router'
-import { useAuth } from '../contexts/AuthContext'
-import { useNavigate } from 'react-router'
+
+import React from "react";
+import { Button, Badge } from "react-bootstrap";
+import { BellIcon, UnreadIcon } from "@primer/octicons-react";
+import { NavLink } from "react-router";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router";
+import "../css/Header.css";
+
 export default function Header() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-  console.log("user ", user);
-  console.log("user image ", user ? user.image_profile_url :"fff" );
+  const user = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null;
 
-    const handleLogout = async () => {
+  const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate("/login");
   };
-  return (
- <div className="container-fluid p-0">
-    <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom p-3">
-                <div className="container-fluid">
-                    <span className="navbar-brand me-4 d-none d-md-block text-muted">MINADER GEC</span>
-                    <div className="input-group flex-grow-1 me-5" style={{ maxWidth: '400px' }}>
-                        <input type="text" className="form-control" placeholder="Rechercher..." aria-label="Rechercher"/>
-                    </div>
-                    <div className="d-flex align-items-center">
-                        <button className="btn btn-outline fs-1  p-0 mx-0"  title="Notifications">
-                          <BellIcon size={20} /><span className="badge" style={{ fontSize: '15px' , color: 'red'}}> 3</span>
-                        </button>
-                        <button className="btn btn-outline me-2" type="button" title="Messages">
-                            <span className="badge bg-danger"><UnreadIcon size={16} /> 5</span>
-                        </button>
-                        <Button variant="primary"><UnreadIcon size={20} /> <Badge bg="danger">9</Badge><span className="visually-hidden">unread messages</span>
-                        </Button>
 
-                      <div className="dropdown">
-                        <NavLink className="nav-link dropdown-toggle" to="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src={user.image_profile_url ? user.image_profile_url :`https://placehold.co/45x45/png`} alt="User Avatar" className="rounded-circle me-1" style={{ width: '30px', height: '30px' }}/>
-                           { user ? user.noms +' '+user.prenoms : 'Utilisateur'}
-                        </NavLink>
-                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><NavLink className="dropdown-item" to="#">Profil</NavLink></li>
-                            <li><NavLink className="dropdown-item" to="#">Paramètres</NavLink></li>
-                            <li><hr className="dropdown-divider"/></li>
-                            <li><Button className="dropdown-item" onClick={handleLogout}>Déconnexion</Button></li>
-                        </ul>
-                      </div>
-                    </div>
-                </div>
-            </nav>
- </div>
-  )
+  return (
+    
+    <header className="navbar navbar-expand-lg fixed custom-navbar px-3">
+      <div className="container-fluid d-flex justify-content-between align-items-center">
+        {/* Logo / Titre */}
+        <span className="navbar-brand fw-bold text-black d-none d-md-block">
+          MINADER GEC
+        </span>
+
+        {/* Barre de recherche */}
+        <div className="input-group search-bar d-none d-md-flex">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher..."
+            aria-label="Rechercher"
+          />
+        </div>
+
+        {/* Icônes à droite */}
+        <div className="d-flex align-items-center gap-3">
+          {/* Notifications */}
+          <button
+            className="btn btn-icon position-relative"
+            title="Notifications"
+          >
+            <BellIcon size={22} className="text-black" />
+            <span className="badge bg-danger rounded-pill notif-badge">3</span>
+          </button>
+
+          {/* Messages */}
+          <button className="btn btn-icon position-relative" title="Messages">
+            <UnreadIcon size={22} className="text-black" />
+            <span className="badge bg-warning rounded-pill notif-badge">5</span>
+          </button>
+
+          {/* Profil utilisateur */}
+          <div className="dropdown">
+            <NavLink
+              className="nav-link dropdown-toggle text-black d-flex align-items-center"
+              to="#"
+              id="navbarDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <img
+                src={
+                  user?.image_profile_url
+                    ? user.image_profile_url
+                    : `https://placehold.co/45x45/png`
+                }
+                alt="User Avatar"
+                className="rounded-circle me-2"
+                style={{ width: "32px", height: "32px" }}
+              />
+              <span className="fw-semibold">
+                {user ? user.noms + " " + user.prenoms : "Utilisateur"}
+              </span>
+            </NavLink>
+            <ul className="dropdown-menu dropdown-menu-end">
+              <li>
+                <NavLink className="dropdown-item" to="#">
+                  Profil
+                </NavLink>
+              </li>
+              <li>
+                <NavLink className="dropdown-item" to="#">
+                  Paramètres
+                </NavLink>
+              </li>
+              <li>
+                <hr className="dropdown-divider" />
+              </li>
+              <li>
+                <Button
+                  className="dropdown-item text-danger"
+                  onClick={handleLogout}
+                >
+                  Déconnexion
+                </Button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+            
+  );
 }

@@ -17,13 +17,20 @@ const api1 = axios.create({
   },  
 });
 
-// Api pour le service des autres
-// const api2 = axios.create({
-//   baseURL: 'http://localhost:3005/api',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-// });
+//Api pour le service des notification et chat
+const api4 = axios.create({
+  baseURL: 'http://localhost:3003/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+// // Api pour le service des autres
+const api3 = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // Intercepteur pour ajouter le token aux requêtes
 api.interceptors.request.use(
@@ -88,7 +95,17 @@ export const authAPI = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  },  
+  }, 
+  
+  registerStructure: async (payload) => {
+    try {
+    const response = await api3.post('/structures/', payload);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }, 
+
   transfertCourier: async (id, formData) => {
     try {
       const response = await api1.put(`/couriers/${id}/transfert`, formData, {
@@ -105,6 +122,22 @@ export const authAPI = {
   listeCourrier: async () => {
     try {
       const response = await api1.get('/couriers');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeStructure: async () => {
+    try {
+      const response = await api3.get('/structures');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeUtilisateur: async () => {
+    try {
+      const response = await api.get('/utilisateurs');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -126,11 +159,46 @@ export const authAPI = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
+  },  
+  suppressionUtilisateur: async (id, payload) => {
+    try {
+      const response = await api.delete(`/utilisateurs/${id}`, {data: payload });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  suppressionStructure: async (id_structure, payload) => {
+    try {
+      console.log('id :', id_structure)
+      const response = await api3.delete(`/structures/${id_structure}/`, {data: payload });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  getByIdStructure: async (id) => {
+    try {
+      const response = await api3.get(`/structures/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
   getByIdCourrier: async (id) => {
     try {
       const response = await api1.get(`/couriers/${id}`);
       return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  getByIdDocument: async (id) => {
+    try {
+      const response = await api1.get(`/documents/${id}`,{ responseType: "blob",});
+      console.log("getByIdDocument response:",response);
+      return response;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -143,6 +211,24 @@ export const authAPI = {
         }
       });
       return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  notifyUser: async (data) => {
+    try {
+    const response = await api4.post('/notifications/notifyUser', data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deleteDocument: async (id) => {
+    try {
+      const response = await api1.delete(`/documents/${id}`);
+      return response;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -171,6 +257,39 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   },
+  getGroups: async () => {
+    try {
+    const response = await api4.get('/groups/listeGroups');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  createGroup: async (data) => {
+    try {
+    const response = await api4.post('/groups/create_group' , data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeMessageGroup: async (id) => {
+    try {
+    const response = await api4.get(`/messages/list_messages_for_group/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  createMessage: async (data) => {
+    try {
+    const response = await api4.post("/messages/create_message", data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 }
+
 
 export default api;

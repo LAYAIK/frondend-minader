@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authAPI } from '../api/index.js';
 import { registerCourrier, listeCourrier, transfertCourier, listeArchive} from '../actions/Courrier.js';
+import { listeStructure, registerStructure } from '../actions/Structure.js';
+import { listeUtilisateur } from '../actions/Utilisateur.js';
 
 const AuthContext = createContext();
 //export default AuthContext;
@@ -50,7 +52,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      setLoading(true);
       const response = await authAPI.login(credentials);
       
       if (response.success && response.data) {
@@ -65,14 +66,16 @@ export const AuthProvider = ({ children }) => {
         
         return { success: true, message: 'Connexion réussie' };
       } else {
+
+        console.log('Réponse de connexion:', response);
+        console.log('Token reçu:', response.message);
+
         return { success: false, message: response.message || 'Erreur de connexion' };
       }
     } catch (error) {
       const message = error.message || 'Erreur de connexion';
       return { success: false, message };
-    } finally {
-      setLoading(false);
-    }
+    };
   };
 
   const logout = async () => {
@@ -90,8 +93,10 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,isAuthenticated,loading,
-    login,logout,checkAuth,
-    registerCourrier,listeCourrier,transfertCourier,listeArchive
+    login,logout,checkAuth,listeUtilisateur,
+    registerCourrier,listeCourrier,transfertCourier,listeArchive,
+    listeStructure,registerStructure,
+
 
   };
 

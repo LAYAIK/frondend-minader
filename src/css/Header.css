@@ -1,0 +1,35 @@
+/* Header customisé */
+.custom-navbar {
+  background-color: rgba(239, 242, 238, 0.92);
+  z-index: 1050; /* pour qu'il reste au-dessus du contenu */
+
+}
+
+/* Barre de recherche */
+.search-bar {
+  max-width: 400px;
+  flex-grow: 1;
+}
+
+/* Icônes rondes */
+.btn-icon {
+  background: transparent;
+  border: none;
+  position: relative;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Badges des notifications */
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.7rem;
+}

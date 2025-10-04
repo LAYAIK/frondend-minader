@@ -54,6 +54,18 @@ export const getByIdCourrier = async (id) => {
     return response;
   };
 
+export const getByIdDocument = async (id) => {
+    const token = localStorage.getItem('token');
+    const response = await authAPI.getByIdDocument(id, token)
+    return response;
+  };
+
+export const deleteDocument = async (id) => {
+    const token = localStorage.getItem('token');
+    const response = await authAPI.deleteDocument(id, token)
+    return response;
+  }
+
 export const useCourrierEntrant = (data) => {
   const id_courrier_entrant = '4cd78808-7d9b-4853-ac54-caefbf8da671';
   const [dataEntrant, setDataEntrant] = useState([]);

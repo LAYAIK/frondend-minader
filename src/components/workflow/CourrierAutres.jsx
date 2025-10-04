@@ -60,8 +60,8 @@ const CourrierWorkflow = ({ id_historique }) => {
                         <li key={etape.id} className="list-group-item">
                             <strong>{etape.action}</strong> par { DataUtilisateur.data?.find(user => user.id_utilisateur === etape.id_utilisateur)?.noms || ""
                              } { DataUtilisateur.data?.find(user => user.id_utilisateur === etape.id_utilisateur)?.prenoms || ""
-                             } de la { DataStructure.data?.find(s => s.id_structure === etape.id_structure)?.nom || "..."
-                             } vers { DataStructure.data?.find(structure => structure.id_structure === etape.id_structure_destination)?.nom || "..."
+                             } de la { DataStructure?.find(s => s.id_structure === etape.id_structure)?.nom || "..."
+                             } vers { DataStructure?.find(structure => structure.id_structure === etape.id_structure_destination)?.nom || "..."
                              } le {new Date(etape.date_historique).toLocaleString()}
                             {etape.note && <p className="mb-0 text-muted">{etape.note}</p>}
                         </li>
@@ -88,12 +88,14 @@ const CourrierAutres = () => {
 
     useEffect(() => {
         const fetchHistoriques = async () => {
-         const action = 'Supprimer'; // Remplacez par l'action souhaitez
+
+         const type_interne = 'adb3c1c1-61c2-493b-9c53-441d4310c607';
+
             try {
                 if (Array.isArray(DataHistoriqueCourrier)){
 
                     const filtered = DataHistoriqueCourrier
-                        .filter(dat => dat.action === action)
+                        .filter(dat => dat.id_type_courrier === type_interne)
                         .map(dat => dat);
                          setHistoriques(filtered);
                 }
@@ -128,11 +130,14 @@ const CourrierAutres = () => {
     return (
         <>
         <div className="liste-courriers-container mt-4 container-fluid">
-            <h2>Les autres courriers </h2>
-            <InputGroup> 
-                <FormControl placeholder="Rechercher..." 
-                onChange={(e) => console.log(e.target.value)} />
-            </InputGroup>
+            <h2>Les courriers Interne</h2>
+            <div className='d-flex justify-content-between'>
+                <InputGroup style={{maxWidth: '300px'}}> 
+                    <FormControl placeholder="Rechercher..." 
+                    onChange={(e) => console.log(e.target.value)}  className=''/>
+                </InputGroup>
+                <Button variant='secondary' onClick={() => navigate('/workflow')}> Retour</Button>
+            </div>
             <Table striped bordered hover responsive className="mt-1 ">
                 <thead>
                     <tr>
@@ -170,7 +175,7 @@ const CourrierAutres = () => {
                     )}
                 </tbody>
             </Table>
-        <Button variant='secondary' onClick={() => navigate('/workflow')}> Retour</Button>
+        
         </div>
         </>
     );

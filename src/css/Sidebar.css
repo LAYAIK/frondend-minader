@@ -1,0 +1,105 @@
+/* Sidebar.css */
+.sidebar-container {
+  width: 270px; /* ajuster si nécessaire */
+  min-width: 220px;
+  background-color: rgba(27, 78, 2, 0.92);
+  height: 100vh;
+  overflow-y: auto;
+  border-radius: 2%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-container.hide {
+  transform: translateX(-100%);
+}
+
+/* Header */
+.sidebar-header {
+  border-bottom: 2px solid rgba(255,255,255,0.06);
+}
+
+/* Corps (zone scroll si besoin) */
+.sidebar-body {
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
+}
+
+/* nav-link principal */
+.sidebar-container .nav-link {
+  color: #ffffff;
+  padding: 0.75rem 2.75rem;
+  border-radius: 6px;
+  font-weight: 400;
+  font-size: 1rem;
+  transition: background-color .15s ease, transform .12s ease;
+  text-decoration: none;
+}
+
+/* petite taille pour sous-éléments */
+.sidebar-container .nav-link.small {
+  font-size: 0.9rem;
+  padding: 0rem 4rem;
+  padding-bottom: 0.25rem;
+}
+
+/* Hover et actif */
+.sidebar-container .nav-link:hover {
+  background-color: rgba(255,255,255,0.08);
+  transform: translateX(6px);
+  color: #fff;
+}
+
+.sidebar-container .nav-link.active {
+  background-color: rgba(255,255,255,0.12);
+  font-weight: 600;
+}
+
+/* bouton toggle personnalisé (pour le collapse) */
+.btn-toggle {
+  background: transparent;
+  border: none;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  color: #fff;
+  border-radius: 6px;
+}
+
+.btn-toggle:hover {
+  background-color: rgba(255,255,255,0.06);
+  transform: translateX(6px);
+}
+
+/* icône de flèche pivotante */
+.toggle-icon {
+  transition: transform 0.18s ease;
+  opacity: 0.95;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+/* sous-menu indentation */
+.submenu .nav-link {
+  color: rgba(255,255,255,0.95);
+  padding-left: 0.25rem;
+  margin-top: 0.18rem;
+  margin-bottom: 0.18rem;
+}
+.sidebar-container.show {
+  transform: translateX(0);
+}
+
+/* Sur desktop (md et +), le sidebar reste toujours visible */
+@media (min-width: 768px) {
+  .sidebar-container {
+    transform: translateX(0) !important;
+  }
+}
+/* rendu des petites icônes + espacement */

@@ -23,9 +23,7 @@ export const useDataTypeCourrier = () => {
 
 export const useDataCourrier = () => {
     const [Data, setData] = useState([]);
-
     const fetchData = async () => {
-
         try {
             const response = await axios.get('http://localhost:3002/api/couriers');
             setData(response.data);
@@ -33,12 +31,26 @@ export const useDataCourrier = () => {
             console.error(err);
         }
     };
-
     useEffect(() => {
         fetchData();
     }, []);
-
     return { DataCourrier: Data};
+};
+
+export const useDataDocument = () => {
+    const [Data, setData] = useState([]);
+    const fetchData = async () => {
+        try {
+            const response = await axios.get('http://localhost:3002/api/documents');
+            setData(response.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    useEffect(() => {
+        fetchData();
+    }, []);
+    return { DataDocument: Data};
 };
 
 export const useDataHistoriqueCourrier = () => {
