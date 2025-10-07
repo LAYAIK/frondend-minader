@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Button, Alert, Col, Row, Spinner,Modal,ListGroup, Container } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router';
-import { getByIdCourrier, miseAJourCourrier,getByIdDocument,deleteDocument } from '../../actions/Courrier';
+import { getByIdCourrier, miseAJourCourrier,getByIdDocument,deleteDocument,createCourrierArchive,suppressionCourrier } from '../../actions/Courrier';
 import { useDataObjet, useDataPriorite, useDataStatus } from '../../data/serviceAutreData';
 import { useDataTypeCourrier, useDataDocument  } from '../../data/serviceCourrierData';
 import { FaPaperPlane, FaTimes, FaUpload, FaTrash } from "react-icons/fa"; // 
@@ -140,12 +140,19 @@ export default function ModifierCourrier() {
           formDataPayload.append('fichiers', files[i]);
         }
       }
-      console.log('formDataPayload', formDataPayload);
+      console.log('id status ', payload.id_status);
       console.log('id', id);
+      if (payload.id_status === 'cb9d439d-f848-49bc-8e88-30d9f60671e2') {
+        await createCourrierArchive(formDataPayload);
+        await suppressionCourrier(id, formDataPayload);
+        setSuccessMessage("✅ Courrier archivé avec succès !");
+        setTimeout(() => navigate('/liste-courrier'), 2500);
+      }else {
 
-      await miseAJourCourrier(id, formDataPayload);
-      setSuccessMessage("✅ Courrier mis à jour avec succès !");
-      setTimeout(() => navigate('/liste-courrier'), 2500);
+        await miseAJourCourrier(id, formDataPayload);
+        setSuccessMessage("✅ Courrier mis à jour avec succès !");
+        setTimeout(() => navigate('/liste-courrier'), 2500);
+      }
     } catch (err) {
       setError("❌ Erreur lors de la mise à jour du courrier.", err);
     } finally {

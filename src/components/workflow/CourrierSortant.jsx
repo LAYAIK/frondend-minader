@@ -154,7 +154,7 @@ const CourrierSortant = () => {
   return (
     <div className="container-fluid mt-4">
       <Card className="shadow-lg">
-        <Card.Body>
+        <Card.Body className="p-4" style={{ maxHeight: '630px', overflowY: 'auto', position: 'relative', display: 'flex', flexDirection: 'column' }}>
           <div className="d-flex justify-content-between align-items-center mb-3 rounded">
             <h2 className="h4 text-success">📬 Courriers sortants</h2>  
           <InputGroup style={{ maxWidth: "300px" }}>

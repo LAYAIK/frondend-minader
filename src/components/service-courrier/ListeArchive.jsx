@@ -1,4 +1,4 @@
-// src/components/ListeCourriers.jsx
+// src/components/Archives.jsx
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -12,19 +12,13 @@ import {
   Pagination,
   Form,
 } from "react-bootstrap";
-import { useAuth } from "../../contexts/AuthContext";
 import {
   useDataObjet,
   useDataPriorite,
   useDataStatus,
 } from "../../data/serviceAutreData";
-import { useDataTypeCourrier } from "../../data/serviceCourrierData";
-import { getByIdCourrier, suppressionCourrier } from "../../actions/Courrier";
-import { useNavigate } from "react-router";
+import { useDataTypeCourrier, useDataHistoriqueCourrier } from "../../data/serviceCourrierData";
 import {
-  FaTrash,
-  FaEdit,
-  FaShare,
   FaEye,
   FaSearch,
   FaSort,
@@ -32,89 +26,50 @@ import {
   FaSortDown,
 } from "react-icons/fa";
 
-const ListeCourrier = () => {
-  const [courriers, setCourriers] = useState([]);
+const Archive = () => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [archive, setArchive] = useState([]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5); // choix dynamique
+  const [itemsPerPage, setItemsPerPage] = useState(10); // choix dynamique
 
+  
   // Tri
   const [sortConfig, setSortConfig] = useState({
     key: "reference_courrier",
     direction: "asc",
   });
 
-  const { listeCourrier } = useAuth();
   const { DataObjet } = useDataObjet();
   const { DataPriorite } = useDataPriorite();
   const { DataStatus } = useDataStatus();
   const { DataTypeCourrier } = useDataTypeCourrier();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchCourriers = async () => {
-      try {
-        const response = await listeCourrier();
-        if (Array.isArray(response)) {
-          setCourriers(response);
-        } else {
-          setCourriers([]);
-          console.error("Données inattendues:", response);
-        }
-      } catch (err) {
-        setError("Impossible de charger les courriers. Veuillez réessayer plus tard.", err);
-        setCourriers([]);
-      } finally {
-        setLoading(false);
+  const { DataHistoriqueCourrier } = useDataHistoriqueCourrier();
+  
+  // --- Simulation des données dynamiques
+  useEffect(() => { 
+    try {
+      if (Array.isArray(DataHistoriqueCourrier)){
+        DataHistoriqueCourrier.forEach((h) => {
+           if (h.action === 'Archiver') setArchive((prev) => [...prev, h])  ;
+         });
+       }else{
+         setArchive([]);
+         console.error("Données inattendues:", DataHistoriqueCourrier);
+       }
+     } catch (err) {
+       console.error("Erreur lors du traitement de l'historique:", err);
+       setArchive([]);
+     } finally {
+       setLoading(false);
       }
-    };
-    fetchCourriers();
-  }, [listeCourrier]);
+    }, [DataHistoriqueCourrier]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce courrier ?")) {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      try {
-        const result = await getByIdCourrier(id);
-        if (!result) return;
-
-        let payload = {
-          id_courrier: result.id_courrier,
-          id_objet: result.id_objet,
-          id_utilisateur: user.id_utilisateur,
-          reference_courrier: result.reference_courrier,
-          id_type_courrier: result.id_type_courrier,
-          id_structure: result.id_structure,
-        };
-
-        const resultat = await suppressionCourrier(id, payload);
-        if (resultat) {
-          setCourriers(courriers.filter((c) => c.id_courrier !== id));
-        }
-      } catch (error) {
-        console.error("Erreur lors de la suppression :", error);
-      }
-    }
-  };
-
-  const handleUpdate = (id) => {
-    navigate(`/modifier-courrier/${id}`);
-  };
-
-  const handleTransfer = (id) => {
-    navigate(`/transfert-courrier/${id}`);
-  };
-
-  const handleDetails = (id) => {
-    navigate(`/detail-courrier/${id}`);
-  };
-
+   console.log('data :', archive);
   // Filtrage
-  const filteredCourriers = courriers.filter(
+  const filteredCourriers = archive.filter(
     (c) =>
       c.reference_courrier?.toLowerCase().includes(search.toLowerCase()) ||
       DataObjet.find((o) => o.id_objet === c.id_objet)?.libelle
@@ -147,17 +102,14 @@ const ListeCourrier = () => {
   const currentCourriers = sortedCourriers.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(sortedCourriers.length / itemsPerPage);
 
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner animation="border" role="status" variant="primary">
-          <span className="visually-hidden">Chargement...</span>
-        </Spinner>
-      </div>
-    );
-  }
-
-  if (error) return <Alert variant="danger">{error}</Alert>;
+   if (loading) {
+      return (
+        <div className="d-flex justify-content-center align-items-center vh-100">
+          <Spinner animation="grow" variant="success" />
+          <span className="ms-2 text-success">Chargement des courriers...</span>
+        </div>
+      );
+    }
 
   const renderSortIcon = (key) => {
     if (sortConfig.key !== key) return <FaSort className="ms-1 text-muted" />;
@@ -172,7 +124,7 @@ const ListeCourrier = () => {
     <div className="container-fluid py-4">
       <Card className="shadow-lg">
         <Card.Header className="d-flex flex-column flex-md-row justify-content-between align-items-center bg-success text-white">
-          <h4 className="mb-3 mb-md-0">📂 Liste des Courriers</h4>
+          <h4 className="mb-3 mb-md-0">📂 Liste des Courriers Archivés</h4>
           <InputGroup style={{ maxWidth: "300px" }}>
             <InputGroup.Text>
               <FaSearch />
@@ -186,18 +138,14 @@ const ListeCourrier = () => {
         </Card.Header>
 
         <Card.Body className="p-0">
-          <Table responsive hover className="mb-0 align-middle">
-            <thead className="table-light">
+          <Table responsive hover bordered className="mb-0 align-middle text-center">
+            <thead className="table-success">
               <tr>
-                <th>#</th>
+                <th>N°</th>
                 <th onClick={() => requestSort("reference_courrier")} style={{ cursor: "pointer" }}>
                   Référence {renderSortIcon("reference_courrier")}
                 </th>
                 <th>Objet</th>
-                <th onClick={() => requestSort("id_status")} style={{ cursor: "pointer" }}>
-                  Statut {renderSortIcon("id_status")}
-                </th>
-                <th>Priorité</th>
                 <th>Type</th>
                 <th className="text-center">Actions</th>
               </tr>
@@ -214,41 +162,15 @@ const ListeCourrier = () => {
                       {DataObjet.find((o) => o.id_objet === c.id_objet)?.libelle || c.id_objet}
                     </td>
                     <td>
-                      <Badge bg="info">
-                        {DataStatus.find((s) => s.id_status === c.id_status)?.libelle || c.id_status}
-                      </Badge>
-                    </td>
-                    <td>
-                      <Badge
-                        bg={
-                          c.id_priorite === 1
-                            ? "danger"
-                            : c.id_priorite === 2
-                            ? "warning"
-                            : "success"
-                        }
-                      >
-                        {DataPriorite.find((p) => p.id_priorite === c.id_priorite)?.niveau ||
-                          c.id_priorite}
-                      </Badge>
-                    </td>
-                    <td>
                       {DataTypeCourrier.find((t) => t.id_type_courrier === c.id_type_courrier)?.type ||
                         c.id_type_courrier}
                     </td>
                     <td className="text-center">
                       <div className="d-flex justify-content-center gap-2">
-                        <Button size="sm" variant="outline-primary" onClick={() => handleDetails(c.id_courrier)}>
+                        <Button size="sm" variant="outline-primary" 
+                        //</div>onClick={() => handleDetails(c.id_historique)}
+                        >
                           <FaEye />
-                        </Button>
-                        <Button size="sm" variant="outline-secondary" onClick={() => handleTransfer(c.id_courrier)}>
-                          <FaShare />
-                        </Button>
-                        <Button size="sm" variant="outline-warning" onClick={() => handleUpdate(c.id_courrier)}>
-                          <FaEdit />
-                        </Button>
-                        <Button size="sm" variant="outline-danger" onClick={() => handleDelete(c.id_courrier)}>
-                          <FaTrash />
                         </Button>
                       </div>
                     </td>
@@ -278,7 +200,6 @@ const ListeCourrier = () => {
             <option value={5}>5 par page</option>
             <option value={10}>10 par page</option>
             <option value={20}>20 par page</option>
-            <option value={50}>50 par page</option>
           </Form.Select>
 
           <Pagination className="mt-3 mt-md-0">
@@ -308,4 +229,4 @@ const ListeCourrier = () => {
   );
 };
 
-export default ListeCourrier;
+export default Archive;

@@ -129,7 +129,7 @@ const CourrierAutres = () => {
 
     return (
         <>
-        <div className="liste-courriers-container mt-4 container-fluid">
+        <div className="liste-courriers-container mt-4 container-fluid" style={{ maxHeight: '630px', overflowY: 'auto', position: 'relative', display: 'flex', flexDirection: 'column' }}>
             <h2>Les courriers Interne</h2>
             <div className='d-flex justify-content-between'>
                 <InputGroup style={{maxWidth: '300px'}}> 

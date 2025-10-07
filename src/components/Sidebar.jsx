@@ -14,6 +14,7 @@ import {
   GearIcon,
   CommentDiscussionIcon,
   TriangleDownIcon,
+  BellIcon,
 } from "@primer/octicons-react";
 
 import "../css/Sidebar.css"; // styles ci-dessous
@@ -36,9 +37,10 @@ export default function Sidebar() {
         <Col>
           <div className="p-3 d-flex align-items-center">
             <img
-              src="https://placehold.co/45x45/png"
+              src="/images/MINADER.jpg"
               alt="logo MINADER"
               className="rounded-circle me-2"
+              style={{ width: "50px", height: "50px" }}
             />
             <div>
               <h4 className="mb-0 text-white">MINADER</h4>
@@ -48,11 +50,11 @@ export default function Sidebar() {
         </Col>
       </Row>
 
-      <Row className="flex-grow-1 sidebar-body">
+      <Row className="flex-grow-1 sidebar-body" style={{ maxHeight: '800px', overflowY: 'auto' }}>
         <Col className="p-0">
           <Nav className="flex-column p-2">
             <NavLink
-              to="/"
+              to="/home"
               className={({ isActive }) =>
                 "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
               }
@@ -74,7 +76,7 @@ export default function Sidebar() {
               <TriangleDownIcon size={19} className={`ms-auto toggle-icon ${openCourriers ? "open" : ""}`} />
             </button>
 
-            <Collapse in={openCourriers}>
+            <Collapse in={openCourriers} >
               <div className="submenu ps-3">
                 <NavLink to="/register-courrier" className="nav-link small">
                   Enregistrer
@@ -95,15 +97,6 @@ export default function Sidebar() {
               }
             >
               <ArchiveIcon size={19} /> <span>Archives</span>
-            </NavLink>
-
-            <NavLink
-              to="/rechercher"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-            }
-            >
-              <SearchIcon size={19} /> <span>Rechercher</span>
             </NavLink>
 
             <NavLink
@@ -132,22 +125,13 @@ export default function Sidebar() {
             >
               <RepoCloneIcon size={19} /> <span>Structures</span>
             </NavLink>
-
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <CommentDiscussionIcon size={19} /> <span>Chat</span>
-            </NavLink>
             <NavLink
               to="/app-chat1"
               className={({ isActive }) =>
                 "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
               }
             >
-              <CommentDiscussionIcon size={19} /> <span>APP Chat 1</span>
+              <CommentDiscussionIcon size={19} /> <span>Chat</span>
             </NavLink>
 
             <NavLink
@@ -156,7 +140,7 @@ export default function Sidebar() {
                 "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
               }
             >
-              <CommentDiscussionIcon size={19} /> <span>Notifications</span>
+              <BellIcon size={19} /> <span>Notifications</span>
             </NavLink>
 
             <NavLink
@@ -168,10 +152,19 @@ export default function Sidebar() {
               <ReportIcon size={19} /> <span>Rapports</span>
             </NavLink>
 
+
+            <NavLink
+              to="/rechercher"
+              className={({ isActive }) =>
+                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
+            }
+            >
+              <SearchIcon size={19} /> <span>Rechercher</span>
+            </NavLink>
             <NavLink
               to="/parametres"
               className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
+                "nav-link d-flex align-items-center gap-2 fixed-bottom mb-4" + (isActive ? " active" : "")
             }
             >
               <GearIcon size={19} /> <span>Paramètres</span>

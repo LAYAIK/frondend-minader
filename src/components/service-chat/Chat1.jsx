@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import API from "../../api/axios";
 import { Card, ListGroup, Form, Button, InputGroup } from "react-bootstrap";
 import useSocket from "../../hooks/useSocket";
 import { listeMessageGroup, createMessage } from "../../actions/Notification";

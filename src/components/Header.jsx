@@ -1,15 +1,37 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Badge } from "react-bootstrap";
 import { BellIcon, UnreadIcon } from "@primer/octicons-react";
 import { NavLink } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
 import { useNavigate } from "react-router";
 import "../css/Header.css";
+
+const API_URL = (typeof globalThis !== 'undefined' && globalThis.process && globalThis.process.env && globalThis.process.env.REACT_APP_API_URL)
+  ? globalThis.process.env.REACT_APP_API_URL
+  : 'http://localhost:3003';
+const SOCKET_URL = (typeof globalThis !== 'undefined' && globalThis.process && globalThis.process.env && globalThis.process.env.REACT_APP_SOCKET_URL)
+  ? globalThis.process.env.REACT_APP_SOCKET_URL
+  : API_URL;
 
 export default function Header() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+
+  const currentUser = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null;
+
+
+   useEffect(() => {
+      if (!currentUser) return;
+      // fetch stored notifications
+      axios.get(`${API_URL}/api/notifications/${currentUser.id_utilisateur}`)
+        .then(res => setNotifications(res.data))
+        .catch(err => console.warn('fetch notifications', err));
+    }, [currentUser]);
 
   const user = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user"))
@@ -47,7 +69,7 @@ export default function Header() {
             title="Notifications"
           >
             <BellIcon size={22} className="text-black" />
-            <span className="badge bg-danger rounded-pill notif-badge">3</span>
+            <span className="badge bg-danger rounded-pill notif-badge">{notifications.filter(n=>!n.lu).length}</span>
           </button>
 
           {/* Messages */}
@@ -82,14 +104,14 @@ export default function Header() {
             </NavLink>
             <ul className="dropdown-menu dropdown-menu-end">
               <li>
-                <NavLink className="dropdown-item" to="#">
+                <Button className="dropdown-item" to="#">
                   Profil
-                </NavLink>
+                </Button>
               </li>
               <li>
-                <NavLink className="dropdown-item" to="#">
+                <Button className="dropdown-item" to="#">
                   Paramètres
-                </NavLink>
+                </Button>
               </li>
               <li>
                 <hr className="dropdown-divider" />

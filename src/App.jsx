@@ -20,7 +20,6 @@ import ListeStructure from './components/service-structure-perso/ListeStructure.
 import AjouterStructure from './components/service-structure-perso/AjouterStructure.jsx';
 import DetailCourrier from './components/service-courrier/DetailCourrier.jsx';
 import ListeUtilisateur from './components/service-authen/ListeUtilisateur.jsx';
-import ChatBox from './components/service-chat/ChatBox.jsx';
 import NotificationsCenter from './components/service-chat/NotificationsCenter.jsx';
 import AppChat1 from './components/service-chat/AppChat1.jsx';
 
@@ -30,8 +29,6 @@ const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 // Composant pour gérer la redirection basée sur l'authentification
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
-    // example roomId = courrier id
-  const roomId = 'courrier-123';
 
   if (loading) {
     return (
@@ -67,7 +64,6 @@ const AppRoutes = () => {
       <Route path="/liste-structure"  element={ <PrivateRoute> <ListeStructure /> </PrivateRoute> } />
       <Route path='/ajouter-structure' element={ <PrivateRoute> <AjouterStructure /> </PrivateRoute> } />
       <Route path='/liste-utilisateur' element={ <PrivateRoute> <ListeUtilisateur /> </PrivateRoute> } />
-      <Route path='/chat' element={ <PrivateRoute> <ChatBox roomId={roomId} user={currentUser} /> </PrivateRoute> } />
       <Route path='/app-chat1' element={ <PrivateRoute> <AppChat1 /> </PrivateRoute> } />
       <Route path='/notifications' element={ <PrivateRoute> <NotificationsCenter currentUser={currentUser} /> </PrivateRoute> } />
       

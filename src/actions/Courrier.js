@@ -79,3 +79,10 @@ export const useCourrierEntrant = (data) => {
 
   return dataEntrant;
 };
+
+export const createCourrierArchive = async (formDataPayload) => {
+
+      const token = localStorage.getItem('token');
+      const response = await authAPI.createCourrierArchive(formDataPayload, token);
+      return response;
+  };

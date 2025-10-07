@@ -19,7 +19,7 @@ export default function CreateGroupModal1({ show, onHide, onCreated }) {
       <Modal.Body>
         <Form.Group className="mb-2">
           <Form.Label>Nom</Form.Label>
-          <Form.Control value={nom} onChange={e => setNom(e.target.value)} />
+          <Form.Control value={nom} onChange={e => setNom(e.target.value)} required />
         </Form.Group>
         <Form.Group>
           <Form.Label>Description</Form.Label>

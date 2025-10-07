@@ -202,7 +202,7 @@ export default function TransfertCourrier() {
       setSuccessMessage("Le courrier a été transféré avec succès ✅ et la notification envoyée.");
       setTimeout(() => {
         navigate("/liste-courrier");
-      }, 3000);
+      }, 3500);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||

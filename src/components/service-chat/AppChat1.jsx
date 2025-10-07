@@ -7,7 +7,6 @@ export default function AppChat1() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   // const [user, setUser] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")); 
-  console.log('user auth :',user); 
 
   return (
     <Container fluid>

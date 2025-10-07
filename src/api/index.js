@@ -75,18 +75,19 @@ export const authAPI = {
   // Enregistrement du courrier
   registerCourrier: async (formData) => {
     try {
-
-    //  const formData = new FormData();
-    // for (const key in credentials) {
-    //   formData.append(key, credentials[key]);
-    // }
-    // for (const file of selectedFiles) {
-    //   formData.append('fichiers', file);
-    // }
-    // for (const [key, value] of formData.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
     const response = await api1.post('/couriers', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  createCourrierArchive: async (formDataPayload) => {
+    try {
+    const response = await api1.post('/archives', formDataPayload, {
         headers: { 
           'Content-Type': 'multipart/form-data'
         }
