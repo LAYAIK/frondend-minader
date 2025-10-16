@@ -1,62 +1,19 @@
-// import React from 'react';
-// import { Navigate } from 'react-router';
-// import { useAuth } from '../contexts/AuthContext.jsx';
-// import { Col, Container, Nav, Row } from 'react-bootstrap';
-// import Sidebar from './Sidebar.jsx';
-// import Header from './Header.jsx';
-// import Footer from './Footer.jsx';
-
-// const PrivateRoute = ({ children }) => {
-//   const { isAuthenticated, loading } = useAuth();
-
-//   if (loading) {
-//     return <div className="loading">Vérification de l'authentification...</div>;
-//   }
-
-//   return isAuthenticated ? 
-//       <div >
-//       <Container fluid >
-//         <Row className="vh-100">
-//           <Col xs={12} md={2} className="d-flex flex-column ">
-//             <Nav>
-//                <Sidebar />
-//             </Nav>
-//           </Col>
-//           <Col  xs={12} md={10} className="d-flex flex-column">
-//             <Row  className="flex-grow-0" >
-//               <Header />
-//             </Row>
-//             {/* MAIN CONTAIN AREA */}
-//             <Row  className="flex-grow-1" style={{backgroundColor: '#dd168aff' }}>  
-//               <Container fluid className="p-0 h-100 justify-content-center d-flex" style={{overflowY: 'auto'}} >
-//                 {children}
-//               </Container>
-//             </Row>
-//             <Row className="mt-auto fixed-bottom">
-//               <Footer />  
-//             </Row>
-//           </Col>
-//         </Row>
-//       </Container>
-//     </div>
-//    : <Navigate to="/login" replace />;
-// };
-
-// export default PrivateRoute;
-
-
-
-import React from 'react';
-import { Navigate } from 'react-router';
-import { useAuth } from '../contexts/AuthContext.jsx';
-import { Col, Container, Nav, Row, Spinner } from 'react-bootstrap';
-import Sidebar from './Sidebar.jsx';
-import Header from './Header.jsx';
-import Footer from './Footer.jsx';
+import React, { useState } from "react";
+import { Navigate } from "react-router";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { Container, Row, Col, Spinner, Button } from "react-bootstrap";
+import { motion, AnimatePresence } from "framer-motion";
+import Sidebar from "./Sidebar.jsx";
+import Header from "./Header.jsx";
+import Footer from "./Footer.jsx";
+import { FaBars } from "react-icons/fa";
+import '../css/PrivateRoute.css'
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Pendant le chargement de l’authentification
   if (loading) {
     return (
       <div className="d-flex vh-100 vw-100 justify-content-center align-items-center bg-light">
@@ -68,41 +25,75 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? (
-    <Container fluid className="">
-      <Row className="">
-        {/* Sidebar */}
-        <Col xs={12} md={2} className="">
-          <Nav className="">
-            <Sidebar />
-          </Nav>
-        </Col>
+  // Si non authentifié → redirection
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-        {/* Main Content */}
-        <Col xs={12} md={10}>
-          {/* Header */}
-          <Row className="">
-            <Header />
-          </Row>
+  return (
+    <div className="vh-100 d-flex flex-column bg-body-tertiary">
+      {/* HEADER */}
+      <Header />
 
-          {/* Main Area */}
-          <Row className="">
-            <Container fluid className="">
+      {/* Bouton d’ouverture du menu mobile */}
+      <div className="d-md-none text-start p-2">
+        <Button
+          variant="outline-primary"
+          className="rounded-circle shadow-sm"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          <FaBars size={20} />
+        </Button>
+      </div>
+
+      <Container fluid className="flex-grow-1 overflow-hidden">
+        <Row className="h-100">
+          {/* SIDEBAR (avec animation Framer Motion) */}
+          <AnimatePresence>
+            {(sidebarOpen || window.innerWidth >= 768) && (
+              <motion.div
+                initial={{ x: -250, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -250, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="col-10 col-md-2 bg-white shadow-sm border-end position-relative z-3"
+                style={{
+                  position: window.innerWidth < 768 ? "absolute" : "relative",
+                  height: "100%",
+                  top: 0,
+                  left: 0,
+                }}
+              >
+                <Sidebar onClose={() => setSidebarOpen(false)} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* CONTENU PRINCIPAL */}
+          <Col
+            xs={12}
+            md={10}
+            className="p-3 overflow-auto"
+            style={{ height: "calc(100vh - 60px)" }}
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="bg-white rounded-4 shadow-sm p-3"
+            >
               {children}
-            </Container>
-          </Row>
+            </motion.div>
+          </Col>
+        </Row>
+      </Container>
 
-          {/* Footer */}
-          <Row className="fixed-bottom">
-            <Footer />
-          </Row>
-        </Col>
-      </Row>
-    </Container>
-  ) : (
-    <Navigate to="/login" replace />
+      {/* FOOTER */}
+      <Footer />
+    </div>
   );
 };
 
 export default PrivateRoute;
+
 

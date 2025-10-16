@@ -163,7 +163,7 @@ export default function ModifierCourrier() {
   const handleAnnuler = () => navigate('/liste-courrier');
 
   return (
-    <Container fluid style={{maxWidth:'900px'}}>
+    <Container fluid style={{maxWidth:'900px'}} className='mt-4'>
 
     <div className="">
       <Card className="shadow-sm rounded-3">
@@ -172,6 +172,11 @@ export default function ModifierCourrier() {
         </Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit} className='d-flex flex-column mx-4 mt-2'>
+
+          {/* Feedback */}
+            {error && <Alert variant="danger">{error}</Alert>}
+            {successMessage && <Alert variant="success">{successMessage}</Alert>}
+            
             {/* Référence */}
             <Form.Group className="mb-2">
               <Form.Label style={{ fontWeight: 'bold' }}>Référence Courrier</Form.Label>
@@ -301,10 +306,6 @@ export default function ModifierCourrier() {
                 disabled={isLoading}
               />
             </Form.Group>
-
-            {/* Feedback */}
-            {error && <Alert variant="danger">{error}</Alert>}
-            {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
             {/* Boutons */}
             <div className="d-flex justify-content-end gap-3 mt-1">

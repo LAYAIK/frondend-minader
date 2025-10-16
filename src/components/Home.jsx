@@ -17,6 +17,11 @@ export default function Home() {
   const [recentCourriers, setRecentCourriers] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("mois");
 
+    // Récupération de l'utilisateur connecté
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
+  console.log('current user: ', user)
+
   // --- Simulation des données dynamiques
   useEffect(() => {
     const courriers = Array.isArray(DataCourrier) ? DataCourrier : [];

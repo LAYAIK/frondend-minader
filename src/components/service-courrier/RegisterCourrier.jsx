@@ -110,6 +110,11 @@ export default function RegisterCourrier() {
         </Card.Header>
         <Card.Body className="p-4 mx-3">
           <Form onSubmit={handleSubmit}>
+            
+            {/* Messages */}
+            {error && <Alert variant="danger">{error}</Alert>}
+            {successMessage && <Alert variant="success">{successMessage}</Alert>}
+            
             {/* Première ligne */}
             <Row className="mb-3">
               <Form.Group as={Col} controlId="typeCourrier">
@@ -253,10 +258,6 @@ export default function RegisterCourrier() {
                 disabled={isLoading}
               />
             </Form.Group>
-
-            {/* Messages */}
-            {error && <Alert variant="danger">{error}</Alert>}
-            {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
             {/* Boutons */}
             <div className="d-flex justify-content-end gap-3 mt-4">

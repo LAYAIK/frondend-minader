@@ -13,10 +13,7 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext";
 import { useDataStructure } from "../../data/serviceStructurePerso";
-import {
-  getByIdUtilisateur,
-  suppressionUtilisateur,
-} from "../../actions/Utilisateur";
+import { getByIdUtilisateur, suppressionUtilisateur} from "../../actions/Utilisateur";
 import { useNavigate } from "react-router";
 import { FaTrash, FaEdit, FaEye, FaSearch, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
@@ -27,9 +24,21 @@ const ListeUtilisateur = () => {
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "noms", direction: "asc" });
 
+  // recupere les scopes de l'utlisateur courrent
+    const scopeIds = localStorage.getItem("scopeIds") || [];
+    console.log('frond end scopesIds', scopeIds);
+  
+    const parsedScopeIds = (() => {
+      try {
+        return Array.isArray(scopeIds) ? scopeIds : JSON.parse(scopeIds);
+      } catch {
+        return [];
+      }
+    })();
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const utilisateursParPage = 5;
+  const utilisateursParPage = 10;
 
   const { listeUtilisateur } = useAuth();
   const navigate = useNavigate();
@@ -87,7 +96,7 @@ const ListeUtilisateur = () => {
   };
 
   const handleUpdate = (id) => navigate(`/modifier-utilisateur/${id}`);
-  const handleDetails = (id) => navigate(`/detail-utilisateur/${id}`);
+  const handleDetails = (id) => navigate(`/voir-utilisateur/${id}`);
 
   // 🔎 Filtrage recherche
   const filteredUtilisateurs = utilisateurs.filter(
@@ -133,7 +142,8 @@ const ListeUtilisateur = () => {
         <span className="ms-2 text-success">Chargement des utilisateurs...</span>
       </div>
     );
-  }
+  };
+
 
   if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -190,12 +200,14 @@ const ListeUtilisateur = () => {
                         <Button size="sm" variant="outline-primary" onClick={() => handleDetails(c.id_utilisateur)}>
                           <FaEye /> 
                         </Button>
-                        <Button size="sm" variant="outline-warning" onClick={() => handleUpdate(c.id_utilisateur)}>
-                          <FaEdit /> 
-                        </Button>
-                        <Button size="sm" variant="outline-danger" onClick={() => handleDelete(c.id_utilisateur)}>
-                          <FaTrash /> 
-                        </Button>
+                        {parsedScopeIds.includes( "234db383-874f-4550-9322-bab7a268772b" ) ? (
+                          <Button size="sm" variant="outline-warning" onClick={() => handleUpdate(c.id_utilisateur)}>
+                             <FaEdit />
+                           </Button> ) :''}
+                        {parsedScopeIds.includes( "b8d37974-78d5-4f3a-9fd7-18b6238ca5ff" ) ? (
+                          <Button size="sm" variant="outline-danger" onClick={() => handleDelete(c.id_utilisateur)}>
+                            <FaTrash />
+                          </Button> ) :''}
                       </div>
                     </td>
                   </tr>

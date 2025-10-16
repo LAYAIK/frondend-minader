@@ -1,5 +1,6 @@
 // src/components/Archives.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import {
   Table,
   Alert,
@@ -24,12 +25,14 @@ import {
   FaSort,
   FaSortUp,
   FaSortDown,
+   FaTrash,
 } from "react-icons/fa";
 
 const Archive = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [archive, setArchive] = useState([]);
+  const navigate = useNavigate();
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,6 +50,17 @@ const Archive = () => {
   const { DataStatus } = useDataStatus();
   const { DataTypeCourrier } = useDataTypeCourrier();
   const { DataHistoriqueCourrier } = useDataHistoriqueCourrier();
+
+      const scopeIds = localStorage.getItem("scopeIds") || [];
+    console.log('frond end scopesIds', scopeIds);
+  
+    const parsedScopeIds = (() => {
+      try {
+        return Array.isArray(scopeIds) ? scopeIds : JSON.parse(scopeIds);
+      } catch {
+        return [];
+      }
+    })();
   
   // --- Simulation des données dynamiques
   useEffect(() => { 
@@ -120,6 +134,15 @@ const Archive = () => {
     );
   };
 
+    const handleDetails = (id) => {
+    navigate(`/detail-historique/${id}`);
+  };
+
+    const handleDelete = async (id) => {
+      window.confirm("Êtes-vous sûr de vouloir supprimer ce courrier ?", id)
+        // la logique
+    };
+
   return (
     <div className="container-fluid py-4">
       <Card className="shadow-lg">
@@ -168,10 +191,14 @@ const Archive = () => {
                     <td className="text-center">
                       <div className="d-flex justify-content-center gap-2">
                         <Button size="sm" variant="outline-primary" 
-                        //</div>onClick={() => handleDetails(c.id_historique)}
+                        onClick={() => handleDetails(c.id_historique)}
                         >
                           <FaEye />
                         </Button>
+                        {parsedScopeIds.includes( "f29abc72-1080-438e-9896-69140d036ebf" ) ? (
+                          <Button size="sm" variant="outline-danger" onClick={() => handleDelete(c.id_historique)}>
+                            <FaTrash />
+                           </Button> ) :''}
                       </div>
                     </td>
                   </tr>

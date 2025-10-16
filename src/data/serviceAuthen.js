@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { authAPI } from '../api/index.js';
 
 export const useDataUtilisateur = () => {
     const [Data, setData] = useState({});
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/utilisateurs');
+            const response = await authAPI.listeUtilisateur();
             setData(response);
         } catch (err) {
             console.error(err);
@@ -16,3 +16,50 @@ export const useDataUtilisateur = () => {
     }, []);
     return { DataUtilisateur: Data};
 };
+export const useDataRole = () => {
+    const [Data, setData] = useState([]);
+    const fetchData = async () => {
+        try {
+            const response = await authAPI.listeRoles();
+            setData(response.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    useEffect(() => {
+        fetchData();
+    }, []);
+    return { DataRole: Data};
+};
+
+export const useDataScope = () => {
+    const [Data, setData] = useState([]);
+    const fetchData = async () => {
+        try {
+            const response = await authAPI.listeScopes();
+            setData(response.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    useEffect(() => {
+        fetchData();
+    }, []);
+    return { DataScope: Data};
+};
+export const useDataRoleScope = () => {
+    const [Data, setData] = useState([]);
+    const fetchData = async () => {
+        try {
+            const response = await authAPI.listeRoleScopes();
+            setData(response.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    useEffect(() => {
+        fetchData();
+    }, []);
+    return { DataRoleScope: Data};
+};
+

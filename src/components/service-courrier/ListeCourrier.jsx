@@ -55,6 +55,18 @@ const ListeCourrier = () => {
   const { DataTypeCourrier } = useDataTypeCourrier();
   const navigate = useNavigate();
 
+    const scopeIds = localStorage.getItem("scopeIds") || [];
+    console.log('frond end scopesIds', scopeIds);
+  
+    const parsedScopeIds = (() => {
+      try {
+        return Array.isArray(scopeIds) ? scopeIds : JSON.parse(scopeIds);
+      } catch {
+        return [];
+      }
+    })();
+
+
   useEffect(() => {
     const fetchCourriers = async () => {
       try {
@@ -243,16 +255,19 @@ const ListeCourrier = () => {
                       <div className="d-flex justify-content-center gap-2">
                         <Button size="sm" variant="outline-primary" onClick={() => handleDetails(c.id_courrier)}>
                           <FaEye />
-                        </Button>
-                        <Button size="sm" variant="outline-secondary" onClick={() => handleTransfer(c.id_courrier)}>
-                          <FaShare />
-                        </Button>
-                        <Button size="sm" variant="outline-warning" onClick={() => handleUpdate(c.id_courrier)}>
+                        </Button>      
+                        {parsedScopeIds.includes( "ef120502-c060-4ae0-9575-9506832c1a1e" ) ? (
+                          <Button size="sm" variant="outline-secondary" onClick={() => handleTransfer(c.id_courrier)}>
+                            <FaShare />
+                          </Button> ) :''}
+                          {parsedScopeIds.includes( "abad4cc2-f595-44ec-a33c-79ea6c5908c1" ) ? (
+                          <Button size="sm" variant="outline-warning" onClick={() => handleUpdate(c.id_courrier)}>
                           <FaEdit />
-                        </Button>
-                        <Button size="sm" variant="outline-danger" onClick={() => handleDelete(c.id_courrier)}>
+                        </Button> ) :''}
+                          {parsedScopeIds.includes( "407d83f9-ef1f-4447-8778-2d1fa481d992" ) ? (
+                          <Button size="sm" variant="outline-danger" onClick={() => handleDelete(c.id_courrier)}>
                           <FaTrash />
-                        </Button>
+                        </Button> ) :''}
                       </div>
                     </td>
                   </tr>

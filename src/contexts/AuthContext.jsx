@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authAPI } from '../api/index.js';
 import { registerCourrier, listeCourrier, transfertCourier, listeArchive} from '../actions/Courrier.js';
 import { listeStructure, registerStructure } from '../actions/Structure.js';
-import { listeUtilisateur } from '../actions/Utilisateur.js';
+import { listeUtilisateur, createUtilisateur } from '../actions/Utilisateur.js';
 
 const AuthContext = createContext();
 //export default AuthContext;
@@ -39,12 +39,14 @@ export const AuthProvider = ({ children }) => {
         } else {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          localStorage.removeItem('scopeIds');
         }
       }
     } catch (error) {
       console.error('Erreur de vérification du token:', error);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('scopeIds');
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,24 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.data) {
         const user = response.data;
         const token = response.token;
+        // Normalize response.scopeIds into an array (table) and stringify for storage
+        let scopeIds = response.scopeIds ?? [];
+        if (typeof scopeIds === 'string') {
+          try {
+            scopeIds = JSON.parse(scopeIds);
+          } catch {
+            scopeIds = scopeIds.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        }
+        if (!Array.isArray(scopeIds)) {
+          scopeIds = [scopeIds];
+        }
+        // Convert numeric strings to numbers
+        scopeIds = scopeIds.map(id => (typeof id === 'string' && /^\d+$/.test(id) ? Number(id) : id));
+        // Save as JSON so the table (array) structure is preserved in localStorage
+        scopeIds = JSON.stringify(scopeIds);
         
+        localStorage.setItem('scopeIds', scopeIds);
         localStorage.setItem('token', token); 
         localStorage.setItem('user', JSON.stringify(user));
         
@@ -86,6 +105,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('scopeIds');
       setUser(null);
       setIsAuthenticated(false);
     }
@@ -93,7 +113,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,isAuthenticated,loading,
-    login,logout,checkAuth,listeUtilisateur,
+    login,logout,checkAuth,listeUtilisateur,createUtilisateur,
     registerCourrier,listeCourrier,transfertCourier,listeArchive,
     listeStructure,registerStructure,
 

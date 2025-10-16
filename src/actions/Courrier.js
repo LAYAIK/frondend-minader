@@ -59,7 +59,11 @@ export const getByIdDocument = async (id) => {
     const response = await authAPI.getByIdDocument(id, token)
     return response;
   };
-
+export const createDocument = async (formData) => {
+    const token = localStorage.getItem('token');
+    const response = await authAPI.createDocument(formData, token)
+    return response;
+  };
 export const deleteDocument = async (id) => {
     const token = localStorage.getItem('token');
     const response = await authAPI.deleteDocument(id, token)

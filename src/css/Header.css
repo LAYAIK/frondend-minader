@@ -1,7 +1,6 @@
 /* Header customisé */
 .custom-navbar {
   background-color: rgba(239, 242, 238, 0.92);
-  z-index: 1050; /* pour qu'il reste au-dessus du contenu */
 
 }
 

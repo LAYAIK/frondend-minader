@@ -197,7 +197,7 @@ export default function NotificationsCenter({ currentUser }) {
           </Badge>
         </Card.Header>
 
-        <Card.Body style={{ maxHeight: "550px", overflowY: "auto" }}>
+        <Card.Body style={{ maxHeight: "650px", overflowY: "auto" }}>
           {loading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />

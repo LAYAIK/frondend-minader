@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const token = localStorage.getItem("token");
+
 // Configuration de base d'Axios
 const API_BASE_URL = 'http://localhost:3001/api'; // Remplacez par votre URL API
 const api = axios.create({
@@ -14,6 +16,7 @@ const api1 = axios.create({
   baseURL: 'http://localhost:3002/api',
   headers: {
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
   },  
 });
 
@@ -143,7 +146,40 @@ export const authAPI = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  }, 
+  },
+  createUtilisateur: async (payload) => {
+    try {
+      const response = await api.post('/utilisateurs', payload);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  createRoleScope: async ({id_scope, id_role}) => {
+    try {
+      console.log('data request : ',id_role,id_scope)
+      const response = await api.post('/roleScopes', {id_scope, id_role});
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+ 
+ deleteRoleScope: async ({ id_scope, id_role }) => {
+  try {
+    console.log('data request : ', id_role, id_scope);
+    const response = await api.delete('/roleScope', {
+      data: { id_scope, id_role }, // ✅ data DOIT être dans un objet de config
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur suppression rôle-scope :", error);
+    throw error.response?.data || error.message;
+  }
+},
   listeArchive: async () => {
     try {
       const response = await api1.get('/archives');
@@ -168,10 +204,22 @@ export const authAPI = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  },
+  }, 
+ miseAJourUtilisateur: async (id, payload) => {
+  try {
+    const response = await api.put(`/utilisateurs/${id}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur miseAJourUtilisateur :", error);
+    throw error.response?.data || error.message;
+  }
+ },
   suppressionStructure: async (id_structure, payload) => {
     try {
-      console.log('id :', id_structure)
       const response = await api3.delete(`/structures/${id_structure}/`, {data: payload });
       return response.data;
     } catch (error) {
@@ -189,6 +237,14 @@ export const authAPI = {
   getByIdCourrier: async (id) => {
     try {
       const response = await api1.get(`/couriers/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  getByIdUtilisateur: async (id) => {
+    try {
+      const response = await api.get(`/utilisateurs/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -229,6 +285,18 @@ export const authAPI = {
   deleteDocument: async (id) => {
     try {
       const response = await api1.delete(`/documents/${id}`);
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  createDocument: async (fichiers) => {
+    try {
+      const response = await api1.post("/documents", fichiers, {
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return response;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -290,7 +358,32 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   },
+  listeRoles: async () => {
+    try {
+      const response = await api.get('/roles');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeScopes: async () => {
+    try {
+      const response = await api.get('/scopes');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeRoleScopes: async () => {
+    try {
+      const response = await api.get('/roleScopes');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 }
+
 
 
 export default api;

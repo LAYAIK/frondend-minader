@@ -103,3 +103,8 @@
   }
 }
 /* rendu des petites icônes + espacement */
+
+.footer {
+   z-index: 1050; /* pour qu'il reste au-dessus du contenu */
+   width: 100%;
+}

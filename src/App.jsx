@@ -22,6 +22,12 @@ import DetailCourrier from './components/service-courrier/DetailCourrier.jsx';
 import ListeUtilisateur from './components/service-authen/ListeUtilisateur.jsx';
 import NotificationsCenter from './components/service-chat/NotificationsCenter.jsx';
 import AppChat1 from './components/service-chat/AppChat1.jsx';
+import Parametres from './components/Parametres.jsx';
+import Rechercher from './components/Rechercher.jsx';
+import ModifierUtilisateur from './components/service-authen/ModifierUtilisateur.jsx';
+import VoirUtilisateiur from './components/service-authen/VoirUtilisateur.jsx'
+import VoirUtilisateur from './components/service-authen/VoirUtilisateur.jsx';
+
 
 // currentUser minimal mock — remplace par ton auth context
 const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
@@ -66,7 +72,10 @@ const AppRoutes = () => {
       <Route path='/liste-utilisateur' element={ <PrivateRoute> <ListeUtilisateur /> </PrivateRoute> } />
       <Route path='/app-chat1' element={ <PrivateRoute> <AppChat1 /> </PrivateRoute> } />
       <Route path='/notifications' element={ <PrivateRoute> <NotificationsCenter currentUser={currentUser} /> </PrivateRoute> } />
-      
+      <Route path='/parametres'  element={ <PrivateRoute> <Parametres/> </PrivateRoute> } />
+      <Route path='/rechercher'  element={ <PrivateRoute> <Rechercher /> </PrivateRoute> } />
+      <Route path='/modifier-utilisateur/:id'  element={ <PrivateRoute> <ModifierUtilisateur /> </PrivateRoute> } />
+      <Route path='/voir-utilisateur/:id'  element={ <PrivateRoute> <VoirUtilisateur /> </PrivateRoute> } />
       {/* Route par défaut */}
       <Route path="/"  element={ isAuthenticated ?  <Navigate to="/home" replace /> :  <Navigate to="/login" replace />  } />
       

@@ -14,4 +14,22 @@ export const getByIdUtilisateur = async (id) => {
 export const suppressionUtilisateur = async (id, payload) => {
       const response = await authAPI.suppressionUtilisateur(id, payload);
       return response;
+  };
+  export const miseAJourUtilisateur = async (id, payload) => {
+      const response = await authAPI.miseAJourUtilisateur(id, payload);
+      return response;
   }
+export const createUtilisateur = async (payload) => {
+      const response = await authAPI.createUtilisateur(payload);
+      return response;
+  }
+export const createRoleScope = async ({id_scope, id_role}) => {
+      const response = await authAPI.createRoleScope({id_scope, id_role});
+      return response;
+  }
+export const deleteRoleScope = async ({id_scope, id_role}) => {
+      const response = await authAPI.deleteRoleScope({id_scope, id_role});
+      return response;
+  }
+
+  

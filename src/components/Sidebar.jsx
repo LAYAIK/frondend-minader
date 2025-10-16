@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Container, Row, Col, Nav, Collapse } from "react-bootstrap";
+import { Container, Row, Col, Nav, Collapse, Badge } from "react-bootstrap";
 import { NavLink } from "react-router";
 import {
   HomeIcon,
@@ -23,157 +23,208 @@ export default function Sidebar() {
   const [openCourriers, setOpenCourriers] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true); // contrôle du sidebar
 
+  // recupere les scopes de l'utilisateur connecter
+  const scopeIds = localStorage.getItem("scopeIds") || [];
+  console.log('frond end scopesIds', scopeIds);
+  
+  const parsedScopeIds = (() => {
+    try {
+      return Array.isArray(scopeIds) ? scopeIds : JSON.parse(scopeIds);
+    } catch {
+      return [];
+    }
+  })();
+
   return (
     <>
-    {/* Bouton toggle visible seulement sur mobile */}
+      {/* Bouton toggle visible seulement sur mobile */}
       <button
         className="btn btn-outline-light d-md-none m-2"
         onClick={() => setShowSidebar(!showSidebar)}
+        aria-label="Toggle sidebar"
       >
         ☰
       </button>
-    <Container fluid className={`sidebar-container d-flex flex-column vh-100 p-0 ${showSidebar ? "show" : "hide"}`}>
-      <Row className="flex-grow-0 sidebar-header">
-        <Col>
-          <div className="p-3 d-flex align-items-center">
-            <img
-              src="/images/MINADER.jpg"
-              alt="logo MINADER"
-              className="rounded-circle me-2"
-              style={{ width: "50px", height: "50px" }}
-            />
-            <div>
-              <h4 className="mb-0 text-white">MINADER</h4>
-              <small className="text-white-50">Gestion du Courrier</small>
-            </div>
-          </div>
-        </Col>
-      </Row>
 
-      <Row className="flex-grow-1 sidebar-body" style={{ maxHeight: '800px', overflowY: 'auto' }}>
-        <Col className="p-0">
-          <Nav className="flex-column p-2">
-            <NavLink
-              to="/home"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <HomeIcon size={22} /> <span style={{ fontSize: "20px" }}>Tableau de bord</span>
-            </NavLink>
-
-            <hr className="my-2" />
-
-            {/* Bouton collapse pour Courriers */}
-            <button
-              type="button"
-              className="btn btn-toggle nav-link d-flex align-items-center gap-2"
-              onClick={() => setOpenCourriers((s) => !s)}
-              aria-expanded={openCourriers}
-            >
-              <InboxIcon size={18} />
-              <span>Courriers</span>
-              <TriangleDownIcon size={19} className={`ms-auto toggle-icon ${openCourriers ? "open" : ""}`} />
-            </button>
-
-            <Collapse in={openCourriers} >
-              <div className="submenu ps-3">
-                <NavLink to="/register-courrier" className="nav-link small">
-                  Enregistrer
-                </NavLink>
-                <NavLink to="/liste-courrier" className="nav-link small">
-                  Consulter
-                </NavLink>
-                <NavLink to="/rechercher" className="nav-link small">
-                  Rechercher
-                </NavLink>
+      <Container
+        fluid
+        className={`sidebar-container d-flex flex-column vh-100 p-0 ${
+          showSidebar ? "show" : "hide"
+        }`}
+      >
+        <Row className="flex-grow-0 sidebar-header">
+          <Col>
+            <div className="p-3 d-flex align-items-center">
+              <img
+                src="/images/MINADER.jpg"
+                alt="logo MINADER"
+                className="rounded-circle me-2"
+                style={{ width: "50px", height: "50px" }}
+              />
+              <div>
+                <h4 className="mb-0 text-white">MINADER</h4>
+                <small className="text-white-50">Gestion du Courrier</small>
               </div>
-            </Collapse>
+            </div>
+          </Col>
+        </Row>
 
-            <NavLink
-              to="/liste-archive"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <ArchiveIcon size={19} /> <span>Archives</span>
-            </NavLink>
+        <Row
+          className="flex-grow-1 sidebar-body"
+          style={{ maxHeight: "800px", overflowY: "auto" }}
+        >
+          <Col className="p-0">
+            <Nav className="flex-column p-2">
+              <NavLink
+                to="/home"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <HomeIcon size={22} />{" "}
+                <span style={{ fontSize: "20px" }}>Tableau de bord</span>
+              </NavLink>
 
-            <NavLink
-              to="/liste-utilisateur"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <PeopleIcon size={19} /> <span>Utilisateurs</span>
-            </NavLink>
+              <hr className="my-2" />
 
-            <NavLink
-              to="/workflow"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <WorkflowIcon size={19} /> <span>Workflows</span>
-            </NavLink>
+              {/* Bouton collapse pour Courriers */}
+              <button
+                type="button"
+                className="btn btn-toggle nav-link d-flex align-items-center gap-2"
+                onClick={() => setOpenCourriers((s) => !s)}
+                aria-expanded={openCourriers}
+                aria-controls="courriers-submenu"
+              >
+                <InboxIcon size={18} />
+                <span>Courriers</span>
+                <TriangleDownIcon
+                  size={19}
+                  className={`ms-auto toggle-icon ${openCourriers ? "open" : ""}`}
+                />
+              </button>
 
-            <NavLink
-              to="/liste-structure"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-            }
-            >
-              <RepoCloneIcon size={19} /> <span>Structures</span>
-            </NavLink>
-            <NavLink
-              to="/app-chat1"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <CommentDiscussionIcon size={19} /> <span>Chat</span>
-            </NavLink>
+              <Collapse in={openCourriers}>
+                <div id="courriers-submenu" className="submenu ps-3">
+                  <NavLink
+                    to="/register-courrier"
+                    className={({ isActive }) =>
+                      `nav-link small ${isActive ? "active" : ""}`
+                    }
+                  >
+                    {parsedScopeIds.includes(
+                      "3c77ab52-7586-4c79-a948-cc28b20457fe"
+                    ) ? (
+                      <Badge bg="success">Enregistrer</Badge>
+                    ) : (
+                      <Badge bg="danger">Enregistrer</Badge>
+                    )}
+                    
+                  </NavLink>
 
-            <NavLink
-              to="/notifications"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-              }
-            >
-              <BellIcon size={19} /> <span>Notifications</span>
-            </NavLink>
+                  <NavLink
+                    to="/liste-courrier"
+                    className={({ isActive }) =>
+                      `nav-link small ${isActive ? "active" : ""}`
+                    }
+                  >
+                    {parsedScopeIds.includes(
+                      "ce4e4bf4-b14a-477c-a32e-2cd800acede9"
+                    ) ? (
+                      <Badge bg="success">Consulter</Badge>
+                    ) : (
+                      <Badge bg="danger">Consulter</Badge>
+                    )}
+                  </NavLink>
+                </div>
+              </Collapse>
 
-            <NavLink
-              to="/rapports"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-            }
-            >
-              <ReportIcon size={19} /> <span>Rapports</span>
-            </NavLink>
+              <NavLink
+                to="/liste-archive"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <ArchiveIcon size={19} /> <span>Archives</span>
+              </NavLink>
 
+              <NavLink
+                to="/liste-utilisateur"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <PeopleIcon size={19} /> <span>Utilisateurs</span>
+              </NavLink>
 
-            <NavLink
-              to="/rechercher"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2" + (isActive ? " active" : "")
-            }
-            >
-              <SearchIcon size={19} /> <span>Rechercher</span>
-            </NavLink>
-            <NavLink
-              to="/parametres"
-              className={({ isActive }) =>
-                "nav-link d-flex align-items-center gap-2 fixed-bottom mb-4" + (isActive ? " active" : "")
-            }
-            >
-              <GearIcon size={19} /> <span>Paramètres</span>
-            </NavLink>
-          </Nav>
-        </Col>
-      </Row>
-    </Container>
-            </>
+              <NavLink
+                to="/workflow"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <WorkflowIcon size={19} /> <span>Workflows</span>
+              </NavLink>
+
+              <NavLink
+                to="/liste-structure"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <RepoCloneIcon size={19} /> <span>Structures</span>
+              </NavLink>
+
+              <NavLink
+                to="/app-chat1"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <CommentDiscussionIcon size={19} /> <span>Chat</span>
+              </NavLink>
+
+              <NavLink
+                to="/notifications"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <BellIcon size={19} /> <span>Notifications</span>
+              </NavLink>
+
+              <NavLink
+                to="/rapports"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <ReportIcon size={19} /> <span>Rapports</span>
+              </NavLink>
+
+              <NavLink
+                to="/rechercher"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 ${isActive ? "active" : ""}`
+                }
+              >
+                <SearchIcon size={19} /> <span>Rechercher</span>
+              </NavLink>
+
+              <NavLink
+                to="/parametres"
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 fixed-bottom mb-4 text-secondary ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                <GearIcon size={19} /> <span>Paramètres</span>
+              </NavLink>
+            </Nav>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 }
 
