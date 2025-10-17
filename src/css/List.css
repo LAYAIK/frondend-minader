@@ -1,0 +1,13 @@
+select.form-select {
+  transition: all 0.3s ease;
+}
+
+select.form-select:hover {
+  border-color: #198754;
+  box-shadow: 0 0 6px rgba(25, 135, 84, 0.4);
+}
+
+button.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}

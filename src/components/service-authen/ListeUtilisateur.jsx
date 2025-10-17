@@ -44,23 +44,33 @@ const ListeUtilisateur = () => {
   const navigate = useNavigate();
   const { DataStructure } = useDataStructure();
 
+  // Récupérer le user connecté (par exemple depuis le localStorage)
+  const currentUser = JSON.parse(localStorage.getItem("user")); 
+
   useEffect(() => {
     const fetchUtilisateurs = async () => {
       try {
         const response = await listeUtilisateur();
+
         if (Array.isArray(response)) {
-          setUtilisateurs(response);
+          // 🔥 Filtrer la liste pour exclure le user connecté
+          const usersFiltered = response.filter(
+            (user) => user.id_utilisateur !== currentUser?.id_utilisateur
+          );
+          setUtilisateurs(usersFiltered);
         } else {
           setUtilisateurs([]);
         }
       } catch (err) {
-        setError("Impossible de charger les utilisateurs. Veuillez réessayer plus tard.",err);
+        console.error("Erreur lors du chargement :", err);
+        setError("Impossible de charger les utilisateurs. Veuillez réessayer plus tard.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchUtilisateurs();
-  }, [listeUtilisateur]);
+  }, [currentUser?.id_utilisateur]); // dépendance utile si le user connecté change
 
   const handleDelete = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
@@ -94,7 +104,6 @@ const ListeUtilisateur = () => {
       }
     }
   };
-
   const handleUpdate = (id) => navigate(`/modifier-utilisateur/${id}`);
   const handleDetails = (id) => navigate(`/voir-utilisateur/${id}`);
 

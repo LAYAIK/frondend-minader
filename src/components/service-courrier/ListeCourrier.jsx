@@ -30,13 +30,16 @@ import {
   FaSort,
   FaSortUp,
   FaSortDown,
+  FaFilter,
 } from "react-icons/fa";
+import '../../css/List.css'
 
 const ListeCourrier = () => {
   const [courriers, setCourriers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("");
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,14 +128,21 @@ const ListeCourrier = () => {
     navigate(`/detail-courrier/${id}`);
   };
 
-  // Filtrage
-  const filteredCourriers = courriers.filter(
-    (c) =>
-      c.reference_courrier?.toLowerCase().includes(search.toLowerCase()) ||
-      DataObjet.find((o) => o.id_objet === c.id_objet)?.libelle
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-  );
+// 🔹 Filtrage combiné : recherche + statut
+const filteredCourriers = courriers.filter((c) => {
+  const matchSearch =
+    c.reference_courrier?.toLowerCase().includes(search.toLowerCase()) ||
+    DataObjet.find((o) => o.id_objet === c.id_objet)?.libelle
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+
+  const matchStatus = selectedFilter
+    ? c.id_status === selectedFilter
+    : true;
+
+  return matchSearch && matchStatus;
+});
+
 
   // Tri dynamique
   const sortedCourriers = [...filteredCourriers].sort((a, b) => {
@@ -195,6 +205,45 @@ const ListeCourrier = () => {
             />
           </InputGroup>
         </Card.Header>
+              {/* 🔸 Barre de filtre stylée */}
+<div className="d-flex flex-wrap justify-content-between align-items-center gap-3 px-3 py-2 bg-light border-bottom">
+  <div className="d-flex align-items-center gap-2">
+    <Form.Label className="fw-bold text-secondary mb-0">
+      <FaFilter className="me-1 text-success" /> Statut :
+    </Form.Label>
+    <Form.Select
+      value={selectedFilter}
+      onChange={(e) => setSelectedFilter(e.target.value)}
+      className="shadow-sm border-success fw-semibold"
+      style={{
+        width: "200px",
+        minWidth: "160px",
+        cursor: "pointer",
+        backgroundColor: "#fefefe",
+      }}
+    >
+      <option value="">Tous les statuts</option>
+      <option value="2763fb62-7795-4612-8e11-2391a47b1f00">🟡 En cours</option>
+      <option value="2f42f43e-e0f3-4125-b6e2-c8d1a1f95394">🕓 En attente</option>
+      <option value="a342bc27-db38-4b6a-b4fd-dd29f258cf89">📤 Transmis</option>
+      <option value="5f1684e9-a207-4dcb-98e9-c41e2f1c74d6">📬 Reçu</option>
+      <option value="0e0d54a6-03f6-44a9-a92d-36d57940d74a">✅ Traité</option>
+      <option value="25ad694f-4afa-4637-b386-b0cf65d0c8b5">❌ Rejeté</option>
+    </Form.Select>
+  </div>
+
+  {selectedFilter && (
+    <Button
+      variant="outline-danger"
+      size="sm"
+      className="fw-semibold"
+      onClick={() => setSelectedFilter("")}
+    >
+      Réinitialiser
+    </Button>
+  )}
+</div>
+
 
         <Card.Body className="p-0">
           <Table responsive hover bordered className="mb-0 align-middle text-center">
