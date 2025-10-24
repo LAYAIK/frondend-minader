@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { listeNotes,listeObjets,listePriorites,listeStatuses } from '../actions/Autres';
 
 export const useDataObjet = () => {
     const [Data, setData] = useState([]);
@@ -7,8 +7,8 @@ export const useDataObjet = () => {
     const fetchData = async () => {
 
         try {
-            const response = await axios.get('http://localhost:3005/api/objets');
-            setData(response.data);
+            const response = await listeObjets();
+            setData(response);
         } catch (err) {
             console.error(err);
         }
@@ -26,8 +26,8 @@ export const useDataPriorite = () => {
     const fetchData = async () => {
 
         try {
-            const response = await axios.get('http://localhost:3005/api/priorites');
-            setData(response.data);
+            const response = await listePriorites();
+            setData(response);
         } catch (err) {
             console.error(err);
         }
@@ -45,8 +45,8 @@ export const useDataStatus = () => {
     const fetchData = async () => {
 
         try {
-            const response = await axios.get('http://localhost:3005/api/statuses');
-            setData(response.data);
+            const response = await listeStatuses();
+            setData(response);
         } catch (err) {
             console.error(err);
         }
@@ -64,8 +64,8 @@ export const useDataNote = () => {
     const fetchData = async () => {
 
         try {
-            const response = await axios.get('http://localhost:3005/api/notes');
-            setData(response.data);
+            const response = await listeNotes();
+            setData(response);
         } catch (err) {
             console.error(err);
         }

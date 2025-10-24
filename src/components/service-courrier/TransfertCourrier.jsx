@@ -60,6 +60,7 @@ export default function TransfertCourrier() {
   const { DataUtilisateur } = useDataUtilisateur();
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log('liste structure :', DataStructure);
 
   /** ==============================
    * LOAD COURIER + DOCUMENTS
@@ -91,7 +92,7 @@ export default function TransfertCourrier() {
    * ============================== */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: name === "delais_traitement" ? Number(value) || "" : value, }));
     setError("");
   };
 
@@ -133,8 +134,11 @@ export default function TransfertCourrier() {
           id_priorite: formData.id_priorite,
           delais_traitement: formData.delais_traitement,
           reference_courrier: formData.reference_courrier,
+          date_envoi: new Date(),
         };
 
+        console.log("id user sender", payload);
+        
         const formDataWithFiles = new FormData();
         Object.entries(payload).forEach(([key, value]) =>
           formDataWithFiles.append(key, value)
@@ -142,11 +146,15 @@ export default function TransfertCourrier() {
         files.forEach((file) => formDataWithFiles.append("fichiers", file));
 
         const resultat = await transfertCourier(formData.id_courrier, formDataWithFiles);
-
+        console.log('resultat', resultat)
         // 🔔 Notification de transfert
+        console.log('users', DataUtilisateur)
+
         const destinataire = DataUtilisateur?.find(
-          (u) => u.id_structure === resultat.id_structure
+          (u) => u.id_structure === resultat.data.id_structure
         );
+        console.log('destinataire', destinataire);
+
         const objet = DataObjet.find((o) => o.id_objet === resultat.id_objet)?.libelle;
         
         await notifyUser({
@@ -248,7 +256,7 @@ export default function TransfertCourrier() {
                   <Form.Control
                     type="number"
                     name="delais_traitement"
-                    value={formData.delais_traitement}
+                    value={formData.delais_traitement ?? ""}
                     onChange={handleChange}
                     placeholder="Ex: 3"
                     required

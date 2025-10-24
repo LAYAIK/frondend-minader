@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import axios from 'axios';
+import { listeStructure } from "../actions/Structure";
 
 export const useDataStructure = () => {
     const [Data, setData] = useState([]);
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/structures');
-            setData(response.data);
+            const response = await listeStructure();
+            setData(response);
         } catch (err) {
             console.error(err);
         }

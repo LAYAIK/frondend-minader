@@ -44,7 +44,7 @@ const DetailCourrier = () => {
   useEffect(() => {
     if (courrier) {
       setDocuments(DataDocument.filter(doc => doc.id_courrier === courrier.id_courrier));
-      setUser(DataUtilisateur.data.filter(u => u.id_utilisateur === courrier.id_utilisateur));
+      setUser(DataUtilisateur.filter(u => u.id_utilisateur === courrier.id_utilisateur));
     } else {
       setDocuments([]);
     }

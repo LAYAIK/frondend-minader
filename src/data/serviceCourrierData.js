@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { listeCourrier,typeCourrier ,listeDocument, listeHistorique} from '../actions/Courrier';
 
 export const useDataTypeCourrier = () => {
     const [Data, setData] = useState([]);
@@ -7,8 +7,8 @@ export const useDataTypeCourrier = () => {
     const fetchData = async () => {
 
         try {
-            const response = await axios.get('http://localhost:3002/api/typecourriers');
-            setData(response.data);
+            const response = await typeCourrier();
+            setData(response);
         } catch (err) {
             console.error(err);
         }
@@ -25,8 +25,8 @@ export const useDataCourrier = () => {
     const [Data, setData] = useState([]);
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:3002/api/couriers');
-            setData(response.data);
+            const response = await listeCourrier();
+            setData(response);
         } catch (err) {
             console.error(err);
         }
@@ -41,8 +41,8 @@ export const useDataDocument = () => {
     const [Data, setData] = useState([]);
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:3002/api/documents');
-            setData(response.data);
+            const response = await listeDocument();
+            setData(response);
         } catch (err) {
             console.error(err);
         }
@@ -59,8 +59,8 @@ export const useDataHistoriqueCourrier = () => {
     const fetchData = async () => {
 
         try {
-            const response = await axios.get('http://localhost:3002/api/getAllHistoriqueCourriers');
-            setData(response.data);
+            const response = await listeHistorique();
+            setData(response);
         } catch (err) {
             console.error(err);
         }

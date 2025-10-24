@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Col, Row, Card, Alert, Spinner } from 'react-bootstrap';
+import { Form, Button, Col, Row, Card, Alert, Spinner, Container, Modal } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDataTypeCourrier } from '../../data/serviceCourrierData';
 import { useDataObjet, useDataPriorite, useDataStatus } from '../../data/serviceAutreData';
 import { useNavigate } from 'react-router';
 import { FaPaperPlane, FaTimesCircle } from 'react-icons/fa';
+import {createObjet} from '../../actions/Autres'
 
 export default function RegisterCourrier() {
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [targetRoute, setTargetRoute] = useState("");
   const { registerCourrier } = useAuth();
   const { DataTypeCourrier } = useDataTypeCourrier();
   const { DataObjet } = useDataObjet();
@@ -32,6 +35,7 @@ export default function RegisterCourrier() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [reference, setReference] = useState('');
 
   // Récupération de l'utilisateur connecté
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
@@ -57,52 +61,78 @@ export default function RegisterCourrier() {
     setFiles(e.target.files);
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    try {
-      setIsLoading(true);
-      if (!formData.id_utilisateur) {
-        throw new Error("Utilisateur non identifié !");
-      }
-
-      let payload = {
-        id_structure: formData.id_structure,
-        note: formData.note,
-        id_status: formData.id_status,
-        id_utilisateur: user.id_utilisateur,
-        id_type_courrier: formData.id_type_courrier || '4cd78808-7d9b-4853-ac54-caefbf8da671', // Courrier Entrant par défaut
-        reference_courrier: formData.reference_courrier,
-        id_objet: formData.id_objet,
-        objet: formData.objet,
-        id_priorite: formData.id_priorite,
-        contenu: formData.contenu,
-      };
-
-      const formDataWithFiles = new FormData();
-      Object.keys(payload).forEach(key => {
-        formDataWithFiles.append(key, payload[key]);
-      });
-
-      if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-          formDataWithFiles.append('fichiers', files[i]);
-        }
-      }
-
-      const response = await registerCourrier(formDataWithFiles);
-      console.log("Réponse API:", response.data);
-
-      setSuccessMessage("✅ Courrier enregistré avec succès !");
-      setTimeout(() => navigate('/liste-courrier'), 2500);
-    } catch (err) {
-      console.error(err);
-      setError("❌ Erreur lors de l'enregistrement du courrier.");
-    } finally {
-      setIsLoading(false);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    setIsLoading(true);
+    if (!formData.id_utilisateur) {
+      throw new Error("Utilisateur non identifié !");
     }
+
+    let idObjetFinal = formData.id_objet;
+
+    // 🆕 Étape 1 : Création de l'objet si c’est un nouvel objet
+    if (formData.id_objet === "new" && formData.objet.trim() !== "" ) {
+
+    const newObjetResponse = await createObjet({ libelle: formData.objet });
+
+      if (!newObjetResponse) {
+        throw new Error("Erreur lors de la création du nouvel objet");
+      }
+
+      idObjetFinal = newObjetResponse.objet.id_objet; // récupère l’UUID généré
+    }
+
+    // 📨 Étape 2 : Préparation du payload du courrier
+    let payload = {
+      id_structure: formData.id_structure,
+      note: formData.note,
+      id_status: formData.id_status,
+      id_utilisateur: user.id_utilisateur,
+      id_type_courrier: formData.id_type_courrier || '4cd78808-7d9b-4853-ac54-caefbf8da671',
+      reference_courrier: formData.reference_courrier,
+      id_objet: idObjetFinal, // <-- utilise le bon ID
+      id_priorite: formData.id_priorite,
+      contenu: formData.contenu,
+    };
+
+    const formDataWithFiles = new FormData();
+    Object.keys(payload).forEach(key => formDataWithFiles.append(key, payload[key]));
+
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        formDataWithFiles.append('fichiers', files[i]);
+      }
+    }
+
+    // 📬 Étape 3 : Enregistrement du courrier
+    const response = await registerCourrier(formDataWithFiles);
+    console.log("Réponse API courrier :", response);
+    const ref = response.courrier.reference_courrier
+    setReference(ref);
+    handleNavigate("/liste-courrier");
+  } catch (err) {
+    console.error(err);
+    setError("❌ Erreur lors de l'enregistrement du courrier.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const handleNavigate = (route) => {
+    setTargetRoute(route);
+    setShowConfirm(true);
   };
 
+  const confirmNavigate = () => {
+    navigate(targetRoute);
+    setShowConfirm(false);
+  };
+
+
   return (
+    <Container> 
+
     <div className="container-fluid py-3 ">
       <Card className="shadow-lg border-0 rounded-3 mx-auto" style={{ maxWidth: '900px' }}>
         <Card.Header as="h4" className="bg-success text-white fw-bold text-center py-2">
@@ -154,26 +184,40 @@ export default function RegisterCourrier() {
 
             {/* Objet */}
             <Form.Group className="mb-3" controlId="objet">
-              <Form.Label style={{ fontWeight: 'bold' }}>Objet</Form.Label>
-              <Form.Select
-                name="id_objet"
-                value={formData.id_objet}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
-              >
-                <option value="">Sélectionner...</option>
-                {DataObjet.length > 0 ? (
-                  DataObjet.map(item => (
-                    <option key={item.id_objet} value={item.id_objet}>
-                      {item.libelle}
-                    </option>
-                  ))
-                ) : (
-                  <option disabled>Aucune donnée disponible</option>
-                )}
-              </Form.Select>
-            </Form.Group>
+  <Form.Label style={{ fontWeight: "bold" }}>Objet</Form.Label>
+  <Form.Select
+    name="id_objet"
+    value={formData.id_objet}
+    onChange={handleChange}
+    disabled={isLoading}
+    required
+  >
+    <option value="">Sélectionner...</option>
+    {DataObjet.length > 0 ? (
+      DataObjet.map(item => (
+        <option key={item.id_objet} value={item.id_objet}>
+          {item.libelle}
+        </option>
+      ))
+    ) : (
+      <option disabled>Aucune donnée disponible</option>
+    )}
+    <option value="new">➕ Ajouter un nouvel objet</option>
+  </Form.Select>
+
+  {/* Champ dynamique pour saisir un nouvel objet */}
+  {formData.id_objet === "new" && (
+    <Form.Control
+      type="text"
+      placeholder="Saisir le nouvel objet..."
+      name="objet"
+      value={formData.objet}
+      onChange={handleChange}
+      className="mt-2"
+      required
+      />
+  )}
+</Form.Group>
 
             {/* Deuxième ligne */}
             <Row className="mb-3">
@@ -281,6 +325,27 @@ export default function RegisterCourrier() {
         </Card.Body>
       </Card>
     </div>
+    {/* Modal de confirmation */}
+          <Modal
+            show={showConfirm}
+            onHide={() => setShowConfirm(false)}
+            centered
+            backdrop="static"
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>✅ Courrier enregistré avec succès !</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <h6> Reference du courrier: {reference} </h6>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="primary" onClick={confirmNavigate}>
+                continuer
+              </Button>
+            </Modal.Footer>
+          </Modal>
+               
+   </Container>
   );
 }
 

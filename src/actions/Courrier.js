@@ -14,6 +14,11 @@ export const listeCourrier = async () => {
       const response = await authAPI.listeCourrier(token);
       return response;
   };
+export const typeCourrier = async () => {
+      const token = localStorage.getItem('token');
+      const response = await authAPI.typeCourrier(token);
+      return response;
+  };
 export const listeArchive = async () => {
       const token = localStorage.getItem('token');
       const response = await authAPI.listeArchive(token);
@@ -68,8 +73,19 @@ export const deleteDocument = async (id) => {
     const token = localStorage.getItem('token');
     const response = await authAPI.deleteDocument(id, token)
     return response;
-  }
-
+ };
+export const listeDocument = async () => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    const response = await authAPI.listeDocument()
+    return response;
+};
+export const listeHistorique = async () => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    const response = await authAPI.listeHistorique()
+    return response;
+};
 export const useCourrierEntrant = (data) => {
   const id_courrier_entrant = '4cd78808-7d9b-4853-ac54-caefbf8da671';
   const [dataEntrant, setDataEntrant] = useState([]);

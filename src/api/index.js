@@ -27,7 +27,14 @@ const api4 = axios.create({
     'Content-Type': 'application/json',
   },
 });
-// // Api pour le service des autres
+//Api pour le service des autres : objets, priorites
+const api5 = axios.create({
+  baseURL: 'http://localhost:3005/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+// Api pour le service structure des autres
 const api3 = axios.create({
   baseURL: 'http://localhost:8000/api',
   headers: {
@@ -41,6 +48,8 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }else {
+      console.warn("⚠️ Aucun token trouvé !");
     }
     return config;
   },
@@ -74,7 +83,6 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   },
-
   // Enregistrement du courrier
   registerCourrier: async (formData) => {
     try {
@@ -100,7 +108,6 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   }, 
-  
   registerStructure: async (payload) => {
     try {
     const response = await api3.post('/structures/', payload);
@@ -109,7 +116,6 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   }, 
-
   transfertCourier: async (id, formData) => {
     try {
       const response = await api1.put(`/couriers/${id}/transfert`, formData, {
@@ -127,6 +133,72 @@ export const authAPI = {
     try {
       const response = await api1.get('/couriers');
       return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeHistorique: async () => {
+    try {
+      const response = await api1.get('/getAllHistoriqueCourriers');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  typeCourrier: async () => {
+    try {
+      const response = await api1.get('/typecourriers');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeDocument: async () => {
+    try {
+      const res = await api1.get('/documents');
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listePriorites: async () => {
+    try {
+      const res = await api5.get('/priorites');
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeNotes: async () => {
+    try {
+      const res = await api5.get('/notes');
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeObjets: async () => {
+    try {
+      const res = await api5.get('/objets');
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  createObjet: async ({libelle}) => {
+    try {
+      const res = await api5.post('/objets',{
+      libelle // ✅ data DOIT être dans un objet de config
+    });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  listeStatuses: async () => {
+    try {
+      const res = await api5.get('/statuses');
+      return res.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -164,8 +236,7 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   },
- 
- deleteRoleScope: async ({ id_scope, id_role }) => {
+  deleteRoleScope: async ({ id_scope, id_role }) => {
   try {
     console.log('data request : ', id_role, id_scope);
     const response = await api.delete('/roleScope', {
@@ -179,7 +250,7 @@ export const authAPI = {
     console.error("Erreur suppression rôle-scope :", error);
     throw error.response?.data || error.message;
   }
-},
+  },
   listeArchive: async () => {
     try {
       const response = await api1.get('/archives');
@@ -274,6 +345,8 @@ export const authAPI = {
   },
 
   notifyUser: async (data) => {
+    
+    console.log('notifyUser data :', data)
     try {
     const response = await api4.post('/notifications/notifyUser', data);
       return response.data;

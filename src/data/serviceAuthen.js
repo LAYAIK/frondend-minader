@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { authAPI } from '../api/index.js';
+import { listeUtilisateur, listeRoleScopes, listeRoles,listeScopes } from '../actions/Utilisateur';
 
 export const useDataUtilisateur = () => {
     const [Data, setData] = useState({});
     const fetchData = async () => {
         try {
-            const response = await authAPI.listeUtilisateur();
+            const response = await listeUtilisateur();
             setData(response);
         } catch (err) {
             console.error(err);
@@ -20,7 +20,7 @@ export const useDataRole = () => {
     const [Data, setData] = useState([]);
     const fetchData = async () => {
         try {
-            const response = await authAPI.listeRoles();
+            const response = await listeRoles();
             setData(response.data);
         } catch (err) {
             console.error(err);
@@ -36,7 +36,7 @@ export const useDataScope = () => {
     const [Data, setData] = useState([]);
     const fetchData = async () => {
         try {
-            const response = await authAPI.listeScopes();
+            const response = await listeScopes();
             setData(response.data);
         } catch (err) {
             console.error(err);
@@ -51,7 +51,7 @@ export const useDataRoleScope = () => {
     const [Data, setData] = useState([]);
     const fetchData = async () => {
         try {
-            const response = await authAPI.listeRoleScopes();
+            const response = await listeRoleScopes();
             setData(response.data);
         } catch (err) {
             console.error(err);
