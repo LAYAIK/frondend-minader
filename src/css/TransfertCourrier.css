@@ -1,0 +1,165 @@
+/* ================================
+   🌿 STYLE GLOBAL - TRANSFERT COURRIER
+   ================================ */
+.container {
+  animation: fadeIn 0.6s ease-in-out;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+}
+
+/* ----------- Carte principale ----------- */
+.card {
+  border: none !important;
+  border-radius: 16px !important;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+  background: linear-gradient(90deg, #198754, #157347);
+  color: white !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ----------- Checkbox + Listes ----------- */
+.hover-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 14px !important;
+}
+
+.hover-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 24px rgba(25, 135, 84, 0.15);
+}
+
+.hover-card .form-check-label {
+  color: #222;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.hover-card:hover .form-check-label {
+  color: #198754;
+}
+
+/* ----------- Liste des utilisateurs ----------- */
+.users-list {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  max-height: 180px;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.users-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.users-list::-webkit-scrollbar-thumb {
+  background-color: #198754;
+  border-radius: 10px;
+}
+
+/* ----------- Formulaires ----------- */
+form label {
+  font-weight: 600;
+  color: #333;
+}
+
+form input,
+form select,
+form textarea {
+  border-radius: 10px !important;
+  border: 1px solid #ced4da !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+  border-color: #198754 !important;
+  box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.25) !important;
+}
+
+/* ----------- Boutons ----------- */
+button {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+/* ----------- Pièces jointes ----------- */
+.list-group-item {
+  border-radius: 10px !important;
+  transition: background 0.3s ease;
+}
+
+.list-group-item:hover {
+  background: rgba(25, 135, 84, 0.07);
+}
+
+/* ----------- Modal ----------- */
+.modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeInModal 0.3s ease;
+}
+
+.modal-header {
+  background: #198754;
+  color: white;
+  border-bottom: none;
+}
+
+.modal-body {
+  background-color: #f9f9f9;
+}
+
+/* ----------- Animations ----------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ----------- Responsive ----------- */
+@media (max-width: 992px) {
+  .card-body {
+    padding: 1rem !important;
+  }
+  .users-list {
+    max-height: 140px;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-header h4 {
+    font-size: 1.1rem;
+  }
+  .hover-card {
+    margin-bottom: 0.8rem;
+  }
+  .users-list {
+    padding: 0.5rem;
+  }
+}

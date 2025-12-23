@@ -276,7 +276,7 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   }, 
- miseAJourUtilisateur: async (id, payload) => {
+  miseAJourUtilisateur: async (id, payload) => {
   try {
     const response = await api.put(`/utilisateurs/${id}`, payload, {
       headers: {

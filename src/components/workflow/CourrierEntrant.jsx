@@ -115,22 +115,38 @@ const CourrierEntrant = () => {
   const [search, setSearch] = useState("");
   const { DataHistoriqueCourrier } = useDataHistoriqueCourrier();
 
-  useEffect(() => {
-    const id_type_entrant = "4cd78808-7d9b-4853-ac54-caefbf8da671";
-    try {
-      if (Array.isArray(DataHistoriqueCourrier)) {
-        const filtered = DataHistoriqueCourrier.filter(
-          (dat) => dat.id_type_courrier === id_type_entrant
-        ).map((dat) => dat.id_courrier);
-        setCourriers(filtered);
-      }
-    } catch (err) {
-      setError("Impossible de charger les courriers.");
-      console.error("Erreur :", err);
-    } finally {
-      setLoading(false);
+useEffect(() => {
+  const id_type_entrant = "4cd78808-7d9b-4853-ac54-caefbf8da671";
+
+  try {
+    if (Array.isArray(DataHistoriqueCourrier)) {
+
+      // 1. Filtrer les courriers entrants
+      const filtered = DataHistoriqueCourrier
+        .filter(item => item.id_type_courrier === id_type_entrant)
+        .map(item => item.id_courrier);
+
+      // 2. Supprimer les doublons (on veut un seul exemplaire)
+      const unique = [...new Set(filtered)];
+
+      // 3. On met à jour seulement si ça change
+      setCourriers(prev => {
+        const same =
+          prev.length === unique.length &&
+          prev.every(v => unique.includes(v));
+        
+        return same ? prev : unique;
+      });
+
     }
-  }, [DataHistoriqueCourrier]);
+  } catch (err) {
+    console.error("Erreur :", err);
+    setError("Impossible de charger les courriers.");
+  } finally {
+    setLoading(false);
+  }
+}, [DataHistoriqueCourrier]);
+
 
   if (loading)
     return (

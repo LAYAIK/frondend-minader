@@ -121,18 +121,32 @@ const CourrierSortant = () => {
   const [search, setSearch] = useState("");
   const { DataHistoriqueCourrier } = useDataHistoriqueCourrier();
 
+
   useEffect(() => {
-    const id_type_sortant = "b596cf53-9355-46aa-8471-31db1d4e912f";
+  
     try {
       if (Array.isArray(DataHistoriqueCourrier)) {
-        const filtered = DataHistoriqueCourrier.filter(
-          (dat) => dat.id_type_courrier === id_type_sortant
-        ).map((dat) => dat.id_courrier);
-        setCourriers(filtered);
+  
+        // 1. Filtrer les courriers entrants
+        const filtered = DataHistoriqueCourrier
+          .map(item => item.id_courrier);
+  
+        // 2. Supprimer les doublons (on veut un seul exemplaire)
+        const unique = [...new Set(filtered)];
+  
+        // 3. On met à jour seulement si ça change
+        setCourriers(prev => {
+          const same =
+            prev.length === unique.length &&
+            prev.every(v => unique.includes(v));
+          
+          return same ? prev : unique;
+        });
+  
       }
     } catch (err) {
-      setError("Impossible de charger les courriers.");
       console.error("Erreur :", err);
+      setError("Impossible de charger les courriers.");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Form,
   Button,
@@ -8,14 +8,20 @@ import {
   Alert,
   Row,
   Col,
+  Badge,
+  Modal,
 } from "react-bootstrap";
+import axios from "axios";
 import {
-  FaUser,
   FaShieldAlt,
+  FaUser,
+  FaLock,
+  FaRegCheckCircle,
+  FaUndoAlt,
+  FaPlusCircle,
 } from "react-icons/fa";
-import "../../css/EditUser.css";
+import "../../css/ModifierUtilisateur.css";
 
-// --- Import des services ---
 import {
   useDataRole,
   useDataScope,
@@ -23,87 +29,66 @@ import {
 } from "../../data/serviceAuthen";
 import {
   getByIdUtilisateur,
-  createRoleScope, miseAJourUtilisateur,deleteRoleScope
+  createRoleScope,
+  miseAJourUtilisateur,
+  deleteRoleScope,
 } from "../../actions/Utilisateur";
 
 export default function ModifierUtilisateur() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  // --- États globaux ---
-  const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState({ type: "", message: "" });
-
-  // --- Données contextuelles ---
   const { DataRole } = useDataRole();
   const { DataScope } = useDataScope();
   const { DataRoleScope } = useDataRoleScope();
 
-  // --- États locaux ---
+  const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState({ type: "", message: "" });
+  const [user, setUser] = useState({});
   const [permissions, setPermissions] = useState([]);
   const [userScopes, setUserScopes] = useState([]);
-  const [user, setUser] = useState({
-    noms: "",
-    prenoms: "",
-    adresse_email: "",
-    telephone: "",
-    RoleIdRole: "",
-    fonction: "",
-    id_structure: "",
-    is_actif: false,
-  });
 
-  // --- Charger les permissions disponibles ---
+  // Modal création rôle
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [newRole, setNewRole] = useState("");
+
+  // Charger permissions
   useEffect(() => {
-    if (DataScope) {
-      const scopes = Array.isArray(DataScope.data)
-        ? DataScope.data
-        : Array.isArray(DataScope)
-        ? DataScope
-        : [];
-      setPermissions(scopes);
+    if (DataScope?.data || Array.isArray(DataScope)) {
+      setPermissions(DataScope.data || DataScope);
     }
   }, [DataScope]);
 
-  // --- Charger les infos utilisateur et ses scopes ---
+  // Charger utilisateur
   useEffect(() => {
-    const fetchUserData = async () => {
+    const loadUser = async () => {
       try {
         setIsLoading(true);
-        const response = await getByIdUtilisateur(id);
-        setUser((prev) => ({ ...prev, ...response }));
+        const u = await getByIdUtilisateur(id);
+        setUser(u);
 
-        // Récupération des scopes liés au rôle de cet utilisateur
-        const roleScopes = DataRoleScope.filter(
-          (rs) => rs.id_role === response.RoleIdRole
-        ).map((rs) => rs.id_scope);
-
-        setUserScopes(roleScopes);
-      } catch (err) {
-        console.error("Erreur utilisateur:", err);
+        const scopes = DataRoleScope.filter(
+          (r) => r.id_role === u.RoleIdRole
+        ).map((r) => r.id_scope);
+        setUserScopes(scopes);
+      } catch (e) {
+        console.error(e);
         setAlert({
           type: "danger",
-          message:
-            "Erreur lors du chargement des informations de l'utilisateur.",
+          message: "Erreur lors du chargement de l'utilisateur.",
         });
       } finally {
         setIsLoading(false);
       }
     };
-    fetchUserData();
+    loadUser();
   }, [id, DataRoleScope]);
 
-  // --- Gestion des changements des champs utilisateur ---
+  // Handle form changes
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setUser((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-    setAlert({ type: "", message: "" });
+    const { name, type, value, checked } = e.target;
+    setUser((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // --- Gestion des permissions dynamiques ---
   const handlePermissionChange = (scopeId) => {
     setUserScopes((prev) =>
       prev.includes(scopeId)
@@ -112,240 +97,196 @@ export default function ModifierUtilisateur() {
     );
   };
 
-  // --- Enregistrer les modifications ---
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setAlert({ type: "", message: "" });
-
-  try {
-    // --- 1️⃣ Met à jour les infos utilisateur ---
-    const payload = {
-      noms: user.noms,
-      prenoms: user.prenoms,
-      adresse_email: user.adresse_email,
-      telephone: user.telephone,
-      RoleIdRole: user.RoleIdRole,
-      fonction: user.fonction,
-      id_structure: user.id_structure,
-      is_actif: user.is_actif,
-    };
-
-    console.log("🟢 Payload envoyé :", payload);
-    const resUpdate = await miseAJourUtilisateur(id, payload);
-    console.log("🟢 Utilisateur mis à jour :", resUpdate);
-
-    // --- 2️⃣ Synchroniser les scopes ---
-    // On récupère tous les scopes actuels du rôle
-    const existingRoleScopes = DataRoleScope
-      .filter((rs) => rs.id_role === user.RoleIdRole)
-      .map((rs) => rs.id_scope);
-
-    console.log("🔹 Scopes actuels en base :", existingRoleScopes);
-    console.log("🔹 Scopes cochés (nouveaux) :", userScopes);
-
-    // --- Créer les nouveaux scopes cochés ---
-    for (const scopeId of userScopes) {
-      if (!existingRoleScopes.includes(scopeId)) {
-        const resAdd = await createRoleScope({
-          id_role: user.RoleIdRole,
-          id_scope: scopeId,
-        });
-        console.log(`✅ Scope ajouté (${scopeId}) :`, resAdd);
-      }
-    }
-
-    // --- Supprimer les anciens scopes décochés ---
-    for (const oldScopeId of existingRoleScopes) {
-      if (!userScopes.includes(oldScopeId)) {
-        // ⚠️ Tu dois avoir une fonction deleteRoleScope() dans ton service
-        const resDel = await deleteRoleScope({
-          id_role: user.RoleIdRole,
-          id_scope: oldScopeId,
-        });
-        console.log(`🗑️ Scope supprimé (${oldScopeId}) :`, resDel);
-      }
-    }
-
-    // --- 3️⃣ Message de succès ---
-    setAlert({
-      type: "success",
-      message: "✅ Utilisateur et permissions mis à jour avec succès.",
+  // Group permissions
+  const groupedPermissions = useMemo(() => {
+    const groups = {};
+    permissions.forEach((p) => {
+      const key = p.objet || "Autres";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(p);
     });
+    return groups;
+  }, [permissions]);
 
-    // --- Redirection après succès ---
-    setTimeout(() => navigate("/liste-utilisateur"), 2500);
-  } catch (err) {
-    console.error("❌ Erreur de mise à jour :", err);
-    setAlert({
-      type: "danger",
-      message:
-        err.response?.data?.message ||
-        "Une erreur est survenue lors de la mise à jour.",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  // === Ajouter un nouveau rôle ===
+  const handleAddRole = async () => {
+    if (!newRole.trim()) return;
 
-  
-  const handleAnnuler = () => navigate('/liste-utilisateur');
+    try {
+      const response = await axios.post("http://localhost:3003/api/roles", {
+        nom: newRole.trim(),
+      });
 
+      const createdRole = response.data;
+      DataRole.push(createdRole);
 
+      setUser((prev) => ({ ...prev, RoleIdRole: createdRole.id_role }));
+      setAlert({ type: "success", message: "✅ Nouveau rôle ajouté avec succès !" });
+      setShowRoleModal(false);
+      setNewRole("");
+    } catch (error) {
+      console.error(error);
+      setAlert({
+        type: "danger",
+        message: "Erreur lors de la création du rôle.",
+      });
+    }
+  };
 
-  // --- Rendu principal ---
+  // === Soumission principale ===
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setAlert({ type: "", message: "" });
+
+    try {
+      await miseAJourUtilisateur(id, user);
+
+      const currentScopes = DataRoleScope.filter(
+        (r) => r.id_role === user.RoleIdRole
+      ).map((r) => r.id_scope);
+
+      for (const scope of userScopes)
+        if (!currentScopes.includes(scope))
+          await createRoleScope({ id_role: user.RoleIdRole, id_scope: scope });
+
+      for (const old of currentScopes)
+        if (!userScopes.includes(old))
+          await deleteRoleScope({ id_role: user.RoleIdRole, id_scope: old });
+
+      setAlert({
+        type: "success",
+        message: "✅ Utilisateur mis à jour avec succès !",
+      });
+
+      setTimeout(() => navigate("/liste-utilisateur"), 1800);
+    } catch (err) {
+      console.error(err);
+      setAlert({
+        type: "danger",
+        message: "Erreur lors de la mise à jour.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="container my-4">
+    <div className="container-fluid py-4">
       <Card className="shadow-lg border-0 rounded-4">
-        <Card.Body> 
-          <div className="justify-content-between container-fluid d-flex">
-          <h4 className="fw-bold mb-3 text-primary">
-            <FaUser className="me-2" />
-            Modifier un utilisateur
-          </h4>
-          <Button variant="secondary" style={{height:'35px'}} onClick={handleAnnuler}>Retour</Button>
+        <Card.Body className="p-4">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h4 className="fw-bold text-success">
+              <FaUser className="me-2" /> Modifier un utilisateur
+            </h4>
+            <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+              <FaUndoAlt className="me-1" /> Retour
+            </Button>
           </div>
 
           {alert.message && (
-            <Alert variant={alert.type} className="fw-semibold text-center">
+            <Alert variant={alert.type} className="text-center fw-semibold">
               {alert.message}
             </Alert>
           )}
 
           <Form onSubmit={handleSubmit}>
-            {/* === SECTION INFOS PERSONNELLES === */}
+            {/* === Informations personnelles === */}
             <section className="mb-4">
-              <h5 className="border-bottom pb-2 mb-3 text-secondary fw-bold">
+              <h5 className="text-secondary border-bottom pb-2 fw-bold">
                 Informations personnelles
               </h5>
-
               <Row className="g-3">
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>Nom</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="noms"
-                      value={user.noms}
-                      readOnly
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>Prénom</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="prenoms"
-                      value={user.prenoms}
-                      readOnly
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="adresse_email"
-                      value={user.adresse_email}
-                      readOnly
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>Téléphone</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="telephone"
-                      value={user.telephone}
-                      readOnly
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>Fonction</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="fonction"
-                      value={user.fonction}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </Col>
+                {[
+                  { label: "Nom", name: "noms" },
+                  { label: "Prénom", name: "prenoms" },
+                  { label: "Email", name: "adresse_email" },
+                  { label: "Téléphone", name: "telephone" },
+                  { label: "Fonction", name: "fonction" },
+                ].map((f) => (
+                  <Col md={4} key={f.name}>
+                    <Form.Group>
+                      <Form.Label>{f.label}</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name={f.name}
+                        value={user[f.name] || ""}
+                        onChange={handleChange}
+                        readOnly={["noms", "prenoms", "adresse_email", "telephone"].includes(f.name)}
+                      />
+                    </Form.Group>
+                  </Col>
+                ))}
+
+                {/* Sélecteur de rôle + ajout */}
                 <Col md={4}>
                   <Form.Group>
                     <Form.Label>Rôle</Form.Label>
-                    <Form.Select
-                      name="RoleIdRole"
-                      value={user.RoleIdRole}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option >Choisir...</option>
-                      {DataRole?.map((role) => (
-                        <option
-                          key={role.id_role}
-                          value={role.id_role}
-                        >
-                          {role.nom}
-                        </option>
-                      ))}
-                    </Form.Select>
+                    <div className="d-flex gap-2">
+                      <Form.Select
+                        name="RoleIdRole"
+                        value={user.RoleIdRole || ""}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Choisir...</option>
+                        {DataRole?.map((r) => (
+                          <option key={r.id_role} value={r.id_role}>
+                            {r.nom}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Button
+                        variant="outline-primary"
+                        title="Ajouter un nouveau rôle"
+                        onClick={() => setShowRoleModal(true)}
+                      >
+                        <FaPlusCircle />
+                      </Button>
+                    </div>
                   </Form.Group>
                 </Col>
               </Row>
             </section>
 
-            {/* === SECTION PERMISSIONS === */}
-            <section className="mt-4">
-              <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                <h5 className="text-secondary fw-bold">
-                  <FaShieldAlt className="me-2" />
-                  Permissions
-                </h5>
-                <Form.Check
-                  type="switch"
-                  id="is_actif"
-                  label="Compte actif"
-                  name="is_actif"
-                  checked={user.is_actif}
-                  onChange={handleChange}
-                />
-              </div>
+            {/* === Permissions === */}
+            <section>
+              <h5 className="text-success border-bottom pb-2 mb-3 fw-bold">
+                <FaShieldAlt className="me-2" /> Permissions par objet
+              </h5>
 
-              {permissions.length === 0 ? (
-                <div className="text-center py-3">
-                  <Spinner animation="border" variant="primary" />
-                </div>
-              ) : (
-                <Row className="g-3">
-                  {permissions.map((perm) => (
-                    <Col key={perm.id} md={6} lg={4} className="text-center">
-                      <Form.Check
-                        type="checkbox"
-                        id={`perm-${perm.code}`}
-                        checked={userScopes.includes(perm.id_scope || perm.code)}
-                        label={perm.libelle || perm.description}
-                        onChange={() =>
-                          handlePermissionChange(perm.id_scope || perm.code)
-                        }
-                        className="fw-semibold border rounded-3 bg-light hover-shadow-sm"
-                      />
-                    </Col>
-                  ))}
-                </Row>
-              )}
+              <div className="permissions-grid">
+                {Object.entries(groupedPermissions).map(([objet, perms]) => (
+                  <Card key={objet} className="permission-card border-0 shadow-sm mb-3">
+                    <Card.Header className="fw-semibold d-flex justify-content-between">
+                      <span className="me-2 fw-bold text-success">{objet}</span>
+                      <Badge bg="secondary">{perms.length}</Badge>
+                    </Card.Header>
+                    <Card.Body>
+                      <div className="d-flex flex-wrap gap-2 justify-content-center">
+                        {perms.map((perm) => (
+                          <Form.Check
+                            key={perm.id_scope}
+                            type="checkbox"
+                            id={`perm-${perm.id_scope}`}
+                            checked={userScopes.includes(perm.id_scope)}
+                            onChange={() => handlePermissionChange(perm.id_scope)}
+                            label={perm.libelle}
+                            className="border rounded-3 px-4 py-2 bg-white hover-shadow-sm align-items-center gap-2"
+                          />
+                        ))}
+                      </div>
+                    </Card.Body>
+                  </Card>
+                ))}
+              </div>
             </section>
 
-            {/* === BOUTON DE VALIDATION === */}
             <div className="text-center mt-4">
               <Button
-                variant="primary"
                 type="submit"
-                className="px-4 py-2 fw-semibold rounded-pill shadow-sm"
+                variant="primary"
+                className="px-4 py-2 rounded-pill shadow-sm"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -354,13 +295,42 @@ export default function ModifierUtilisateur() {
                     Sauvegarde...
                   </>
                 ) : (
-                  "Enregistrer les modifications"
+                  <>
+                    <FaRegCheckCircle className="me-2" />
+                    Enregistrer
+                  </>
                 )}
               </Button>
             </div>
           </Form>
         </Card.Body>
       </Card>
+
+      {/* === MODAL NOUVEAU RÔLE === */}
+      <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Ajouter un nouveau rôle</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Nom du rôle</Form.Label>
+            <Form.Control
+              type="text"
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value)}
+              placeholder="Ex: Directeur RH"
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRoleModal(false)}>
+            Annuler
+          </Button>
+          <Button variant="success" onClick={handleAddRole}>
+            <FaPlusCircle className="me-2" /> Ajouter
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

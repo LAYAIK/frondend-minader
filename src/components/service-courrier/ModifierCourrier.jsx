@@ -246,6 +246,7 @@ export default function ModifierCourrier() {
                 value={formData.note || ''}
                 onChange={handleChange}
                 placeholder="Ajoutez une note si nécessaire"
+                disabled={isLoading}
               />
             </Form.Group>
               {
